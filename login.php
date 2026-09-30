@@ -77,11 +77,15 @@ if (isset($_POST['login'])) {
     <meta charset="UTF-8">
 
     <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
 </head>
 
 <body>
-
+<body class="bg-primary bg-opacity-10 min-vh-100 d-flex justify-content-center align-items-center">
+<body class="bg-light min-vh-100 d-flex justify-content-center align-items-center">
+<div  class="container text-center">
+<div class="card shadow p-4 rounded-4 bg-white col-md-5 mx-auto">
 <h2>LOGIN</h2>
 
 <?php
@@ -95,7 +99,6 @@ if ($error != "") {
 ?>
 
 <form method="POST">
-
     <p>
         Email
         <br>
@@ -118,6 +121,7 @@ if ($error != "") {
 
     <p>
         <button
+        class="btn btn-outline-primary"
             type="submit"
             name="login"
         >
@@ -126,7 +130,7 @@ if ($error != "") {
     </p>
 
 </form>
-
+</div>
 </body>
 
 </html>
