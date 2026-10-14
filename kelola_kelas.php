@@ -1,63 +1,31 @@
 <?php
-session_start();
-include "config/koneksi.php";
+require_once 'koneksi.php';
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') { header("Location: login.php"); exit(); }
 
-if (!isset($_SESSION['id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: login.php");
-    exit;
-}
+$role = $_SESSION['role'];
+$nama_user = $_SESSION['nama_user'] ?? 'Administrator Utama';
 
-$pesan = "";
-
-// PROSES TAMBAH KELAS
-if (isset($_POST['tambah'])) {
-    $nama = mysqli_real_escape_string($koneksi, $_POST['nama']);
-    $tingkat = mysqli_real_escape_string($koneksi, $_POST['tingkat']);
-    $jurusan = mysqli_real_escape_string($koneksi, $_POST['jurusan']);
-    $status_aktif = intval($_POST['status_aktif']);
+if (isset($_POST['simpan'])) {
+    $id = $_POST['id'];
+    $nama = $_POST['nama']; // Menggunakan 'nama' sesuai database
+    $tingkat = $_POST['tingkat'];
+    $jurusan = $_POST['jurusan'];
     
-    $query = "INSERT INTO t_kelas (nama, tingkat, jurusan, status_aktif) VALUES ('$nama', '$tingkat', '$jurusan', $status_aktif)";
-    if (mysqli_query($koneksi, $query)) {
-        $pesan = "Kelas berhasil ditambahkan!";
+    if ($id) {
+        mysqli_query($koneksi, "UPDATE t_kelas SET nama='$nama', tingkat='$tingkat', jurusan='$jurusan' WHERE id='$id'");
     } else {
-        $pesan = "Gagal: " . mysqli_error($koneksi);
+        mysqli_query($koneksi, "INSERT INTO t_kelas (nama, tingkat, jurusan, status_aktif) VALUES ('$nama', '$tingkat', '$jurusan', 1)");
     }
+    header("Location: kelola_kelas.php"); exit();
 }
 
-// PROSES EDIT / UPDATE KELAS
-if (isset($_POST['edit'])) {
-    $id = intval($_POST['id']);
-    $nama = mysqli_real_escape_string($koneksi, $_POST['nama']);
-    $tingkat = mysqli_real_escape_string($koneksi, $_POST['tingkat']);
-    $jurusan = mysqli_real_escape_string($koneksi, $_POST['jurusan']);
-    $status_aktif = intval($_POST['status_aktif']);
-    
-    $query = "UPDATE t_kelas SET nama = '$nama', tingkat = '$tingkat', jurusan = '$jurusan', status_aktif = $status_aktif WHERE id = $id";
-    if (mysqli_query($koneksi, $query)) {
-        $pesan = "Data kelas berhasil diubah!";
-    } else {
-        $pesan = "Gagal update: " . mysqli_error($koneksi);
-    }
-}
-
-// PROSES HAPUS KELAS
 if (isset($_GET['hapus'])) {
-    $id = intval($_GET['hapus']);
-    mysqli_query($koneksi, "DELETE FROM t_kelas WHERE id = $id");
-    header("Location: kelola_kelas.php");
-    exit;
+    mysqli_query($koneksi, "DELETE FROM t_kelas WHERE id='{$_GET['hapus']}'");
+    header("Location: kelola_kelas.php"); exit();
 }
 
-// AMBIL DATA UNTUK FORM EDIT JIKA ADA PARAMETER ?ubah=ID
-$edit_data = null;
-if (isset($_GET['ubah'])) {
-    $id_ubah = intval($_GET['ubah']);
-    $result_ubah = mysqli_query($koneksi, "SELECT * FROM t_kelas WHERE id = $id_ubah");
-    $edit_data = mysqli_fetch_assoc($result_ubah);
-}
-
-// AMBIL SEMUA DATA KELAS (Diurutkan dari ID terkecil agar No 1 di atas)
-$data = mysqli_query($koneksi, "SELECT * FROM t_kelas ORDER BY id ASC");
+$edit = isset($_GET['edit']) ? mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM t_kelas WHERE id='{$_GET['edit']}'")) : ['id'=>'','nama'=>'','tingkat'=>'','jurusan'=>''];
+$data = mysqli_query($koneksi, "SELECT * FROM t_kelas");
 ?>
 
 <!DOCTYPE html>
@@ -65,92 +33,110 @@ $data = mysqli_query($koneksi, "SELECT * FROM t_kelas ORDER BY id ASC");
 <head>
     <meta charset="UTF-8">
     <title>Kelola Kelas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { min-height: 100vh; background-color: #212529; color: #fff; position: fixed; width: 250px; top: 0; left: 0; }
+        .sidebar a { color: #adb5bd; text-decoration: none; display: block; padding: 10px 20px; }
+        .sidebar a:hover, .sidebar a.active { color: #fff; background-color: #0d6efd; }
+        .main-content { margin-left: 250px; padding: 20px; }
+    </style>
 </head>
 <body>
-    <h2>Kelola Data Kelas</h2>
-    <p><a href="dashboard.php">&laquo; Dashboard</a></p>
-    <?php if ($pesan) echo "<p><b>$pesan</b></p>"; ?>
 
-    <!-- FORM TAMBAH / EDIT KELAS -->
-    <?php if ($edit_data): ?>
-        <h3>Edit Kelas</h3>
-        <form method="POST">
-            <input type="hidden" name="id" value="<?= $edit_data['id']; ?>">
-            
-            Nama Kelas (Contoh: XII RPL 1): <br>
-            <input type="text" name="nama" value="<?= htmlspecialchars($edit_data['nama']); ?>" required><br>
-            
-            Tingkat: <br>
-            <select name="tingkat" required>
-                <option value="">-- Pilih Tingkat --</option>
-                <option value="X" <?= ($edit_data['tingkat'] == 'X') ? 'selected' : ''; ?>>X</option>
-                <option value="XI" <?= ($edit_data['tingkat'] == 'XI') ? 'selected' : ''; ?>>XI</option>
-                <option value="XII" <?= ($edit_data['tingkat'] == 'XII') ? 'selected' : ''; ?>>XII</option>
-            </select><br>
-            
-            Jurusan: <br>
-            <input type="text" name="jurusan" value="<?= htmlspecialchars($edit_data['jurusan']); ?>" placeholder="Contoh: RPL" required><br>
-            
-            Status Aktif: <br>
-            <select name="status_aktif" required>
-                <option value="1" <?= ($edit_data['status_aktif'] == 1) ? 'selected' : ''; ?>>Aktif (1)</option>
-                <option value="0" <?= ($edit_data['status_aktif'] == 0) ? 'selected' : ''; ?>>Tidak Aktif (0)</option>
-            </select><br><br>
-            
-            <button type="submit" name="edit">Update Kelas</button>
-            <a href="kelola_kelas.php">Batal</a>
-        </form>
-    <?php else: ?>
-        <h3>Tambah Kelas Baru</h3>
-        <form method="POST">
-            Nama Kelas (Contoh: XII RPL 1): <br>
-            <input type="text" name="nama" required><br>
-            
-            Tingkat: <br>
-            <select name="tingkat" required>
-                <option value="">-- Pilih Tingkat --</option>
-                <option value="X">X</option>
-                <option value="XI">XI</option>
-                <option value="XII">XII</option>
-            </select><br>
-            
-            Jurusan: <br>
-            <input type="text" name="jurusan" placeholder="Contoh: RPL" required><br>
-            
-            Status Aktif: <br>
-            <select name="status_aktif" required>
-                <option value="1">Aktif (1)</option>
-                <option value="0">Tidak Aktif (0)</option>
-            </select><br><br>
-            
-            <button type="submit" name="tambah">Simpan Kelas</button>
-        </form>
-    <?php endif; ?>
+    <!-- SIDEBAR -->
+    <div class="sidebar d-flex flex-column p-3">
+        <h4 class="text-white mb-4">Pelanggaran Siswa</h4>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item mb-1"><a href="dashboard.php">Dashboard</a></li>
+            <?php if ($role === 'admin'): ?>
+                <li class="nav-item mb-1"><a href="kelola_guru.php">Kelola Guru</a></li>
+                <li class="nav-item mb-1"><a href="kelola_siswa.php">Kelola Siswa</a></li>
+                <li class="nav-item mb-1"><a href="kelola_kelas.php" class="active">Kelola Kelas</a></li>
+                <li class="nav-item mb-1"><a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a></li>
+                <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
+                <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
+                <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
+                <li class="nav-item mb-1"><a href="laporan.php">laporan</a></li>
+                <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
+                <li class="nav-item mb-1"><a href="cetak/export.php">Cetak / Export</a></li>
+                <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
+            <?php endif; ?>
 
-    <hr>
-    <h3>Daftar Kelas</h3>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>No</th>
-            <th>Nama Kelas</th>
-            <th>Tingkat</th>
-            <th>Jurusan</th>
-            <th>Status</th>
-            <th>Aksi</th>
-        </tr>
-        <?php $no = 1; while($r = mysqli_fetch_assoc($data)): ?>
-        <tr>
-            <td><?= $no++; ?></td>
-            <td><?= htmlspecialchars($r['nama']); ?></td>
-            <td><?= htmlspecialchars($r['tingkat']); ?></td>
-            <td><?= htmlspecialchars($r['jurusan']); ?></td>
-            <td><?= ($r['status_aktif'] == 1) ? 'Aktif' : 'Tidak Aktif'; ?></td>
-            <td>
-                <a href="?ubah=<?= $r['id']; ?>">Edit</a> | 
-                <a href="?hapus=<?= $r['id']; ?>" onclick="return confirm('Yakin ingin menghapus kelas ini?')">Hapus</a>
-            </td>
-        </tr>
-        <?php endwhile; ?>
-    </table>
+            <?php if ($role === 'guru'): ?>
+                <li class="nav-item mb-1"><a href="catat_pelanggaran.php">Catat Pelanggaran</a></li>
+                <li class="nav-item mb-1"><a href="tindakan.php">Tindakan</a></li>
+                <li class="nav-item mb-1"><a href="riwayat.php">Riwayat</a></li>
+                <li class="nav-item mb-1"><a href="rekap_poin.php">Rekap Poin</a></li>
+            <?php endif; ?>
+        </ul>
+        <hr>
+        <a href="logout.php" class="text-danger">Logout</a>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <h2>Kelola Kelas</h2>
+        <a href="dashboard.php">Dashboard</a> | <a href="logout.php">Logout</a><hr>
+
+        <!-- FORM INPUT / EDIT -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="id" value="<?= $edit['id']; ?>">
+                    <div class="mb-3">
+                        <label class="form-label">Nama Kelas (Contoh: XII RPL 1):</label>
+                        <input type="text" name="nama" class="form-control" value="<?= $edit['nama']; ?>" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tingkat (Contoh: X, XI, XII):</label>
+                        <input type="text" name="tingkat" class="form-control" value="<?= $edit['tingkat']; ?>" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Jurusan (Contoh: RPL, TKJ):</label>
+                        <input type="text" name="jurusan" class="form-control" value="<?= $edit['jurusan']; ?>" required>
+                    </div>
+                    
+                    <button type="submit" name="simpan" class="btn btn-primary">Simpan</button>
+                    <?php if($edit['id']): ?><a href="kelola_kelas.php" class="btn btn-secondary">Batal</a><?php endif; ?>
+                </form>
+            </div>
+        </div>
+
+        <!-- TABEL DATA -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th width="5%">No</th>
+                            <th>Nama</th>
+                            <th>Tingkat</th>
+                            <th>Jurusan</th>
+                            <th width="15%" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $no=1; while($r = mysqli_fetch_assoc($data)): ?>
+                        <tr>
+                            <td><?= $no++; ?></td>
+                            <td><?= $r['nama']; ?></td>
+                            <td><?= $r['tingkat']; ?></td>
+                            <td><?= $r['jurusan']; ?></td>
+                            <td class="text-center">
+                                <a href="kelola_kelas.php?edit=<?= $r['id']; ?>" class="btn btn-sm btn-warning">Edit</a> | 
+                                <a href="kelola_kelas.php?hapus=<?= $r['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus?')">Hapus</a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
