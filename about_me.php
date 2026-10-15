@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $role = $_SESSION['role'];
 // Menggunakan nama Anda secara langsung
-$nama = "Junita Putri Nur Rahman";
+$nama = "Rani Meilani";
 ?>
 
 <!DOCTYPE html>
@@ -37,9 +37,6 @@ $nama = "Junita Putri Nur Rahman";
                         <a href="about.php" class="nav-link active"><i class="bi bi-person-circle me-2"></i> About Me</a>
                     </li>
                     <hr class="text-secondary">
-                    <li class="nav-item">
-                        <a href="logout.php" class="nav-link text-danger"><i class="bi bi-box-arrow-right me-2"></i> Logout</a>
-                    </li>
                 </ul>
             </div>
 
@@ -61,8 +58,8 @@ $nama = "Junita Putri Nur Rahman";
                                 <h3 class="fw-bold mb-1"><?= htmlspecialchars($nama); ?></h3>
                                 <p class="text-muted mb-3"><span class="badge bg-danger"><?= strtoupper(htmlspecialchars($role)); ?></span></p>
                                 <hr>
-                                <p class="text-start mb-2"><strong>Aplikasi:</strong> Sistem Informasi Pelanggaran Siswa</p>
-                                <p class="text-start mb-2"><strong>Institusi:</strong> SMK Muhammadiyah</p>
+                                <p class="text-start mb-2"><strong>Jurusan:</strong> Rekayasa Perangkat Lunak</p>
+                                <p class="text-start mb-2"><strong>Sekolah:</strong> SMK Muhammadiyah</p>
                                 <p class="text-start mb-0"><strong>Tahun:</strong> 2026</p>
                             </div>
                         </div>
