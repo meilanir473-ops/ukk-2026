@@ -1,133 +1,203 @@
+```php
 <?php
 require_once 'koneksi.php';
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') { header("Location: login.php"); exit(); }
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit();
+}
 
 $role = $_SESSION['role'];
 $nama_user = $_SESSION['nama_user'] ?? 'Administrator Utama';
 
 if (isset($_POST['simpan'])) {
-    $id = $_POST['id'];
-    $nama = $_POST['nama']; // Menggunakan 'nama' sesuai database
-    $tingkat = $_POST['tingkat'];
-    $jurusan = $_POST['jurusan'];
-    
+    $id = (int)$_POST['id'];
+    $nama = mysqli_real_escape_string($koneksi, $_POST['nama']);
+    $tingkat = mysqli_real_escape_string($koneksi, $_POST['tingkat']);
+    $jurusan = mysqli_real_escape_string($koneksi, $_POST['jurusan']);
+
     if ($id) {
-        mysqli_query($koneksi, "UPDATE t_kelas SET nama='$nama', tingkat='$tingkat', jurusan='$jurusan' WHERE id='$id'");
+        mysqli_query($koneksi, "UPDATE t_kelas SET
+            nama='$nama', tingkat='$tingkat', jurusan='$jurusan'
+            WHERE id=$id");
     } else {
-        mysqli_query($koneksi, "INSERT INTO t_kelas (nama, tingkat, jurusan, status_aktif) VALUES ('$nama', '$tingkat', '$jurusan', 1)");
+        mysqli_query($koneksi, "INSERT INTO t_kelas
+            (nama, tingkat, jurusan, status_aktif)
+            VALUES ('$nama','$tingkat','$jurusan',1)");
     }
-    header("Location: kelola_kelas.php"); exit();
+
+    header("Location: kelola_kelas.php");
+    exit();
 }
 
 if (isset($_GET['hapus'])) {
-    mysqli_query($koneksi, "DELETE FROM t_kelas WHERE id='{$_GET['hapus']}'");
-    header("Location: kelola_kelas.php"); exit();
+    $id = (int)$_GET['hapus'];
+    mysqli_query($koneksi, "DELETE FROM t_kelas WHERE id=$id");
+    header("Location: kelola_kelas.php");
+    exit();
 }
 
-$edit = isset($_GET['edit']) ? mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM t_kelas WHERE id='{$_GET['edit']}'")) : ['id'=>'','nama'=>'','tingkat'=>'','jurusan'=>''];
-$data = mysqli_query($koneksi, "SELECT * FROM t_kelas");
+$edit = [
+    'id'=>'', 'nama'=>'', 'tingkat'=>'', 'jurusan'=>''
+];
+
+if (isset($_GET['edit'])) {
+    $id = (int)$_GET['edit'];
+    $hasil = mysqli_query($koneksi, "SELECT * FROM t_kelas WHERE id=$id");
+
+    if ($hasil && mysqli_num_rows($hasil) > 0) {
+        $edit = mysqli_fetch_assoc($hasil);
+    }
+}
+
+$data = mysqli_query($koneksi, "SELECT * FROM t_kelas ORDER BY id DESC");
 ?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Kelola Kelas</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
     <style>
-        body { background-color: #f8f9fa; }
-        .sidebar { min-height: 100vh; background-color: #212529; color: #fff; position: fixed; width: 250px; top: 0; left: 0; }
-        .sidebar a { color: #adb5bd; text-decoration: none; display: block; padding: 10px 20px; }
-        .sidebar a:hover, .sidebar a.active { color: #fff; background-color: #0d6efd; }
+        body { background: #f8f9fa; }
+        .sidebar {
+            min-height: 100vh; background: #212529;
+            color: white; position: fixed; width: 250px;
+            top: 0; left: 0;
+        }
+        .sidebar a {
+            color: #adb5bd; text-decoration: none;
+            display: block; padding: 10px 20px;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            color: white; background: #0d6efd;
+        }
         .main-content { margin-left: 250px; padding: 20px; }
+
+        @media(max-width:768px) {
+            .sidebar { position: relative; width: 100%; min-height: auto; }
+            .main-content { margin-left: 0; padding: 15px; }
+        }
     </style>
 </head>
+
 <body>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar d-flex flex-column p-3">
-        <h4 class="text-white mb-4">Pelanggaran Siswa</h4>
-        <ul class="nav nav-pills flex-column mb-auto">
-            <li class="nav-item mb-1"><a href="dashboard.php">Dashboard</a></li>
-            <?php if ($role === 'admin'): ?>
-                <li class="nav-item mb-1"><a href="kelola_guru.php">Kelola Guru</a></li>
-                <li class="nav-item mb-1"><a href="kelola_siswa.php">Kelola Siswa</a></li>
-                <li class="nav-item mb-1"><a href="kelola_kelas.php" class="active">Kelola Kelas</a></li>
-                <li class="nav-item mb-1"><a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a></li>
-                <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
-                <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
-                <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
-                <li class="nav-item mb-1"><a href="laporan.php">laporan</a></li>
-                <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
-               
-                <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
-            <?php endif; ?>
+<!-- SIDEBAR -->
+<div class="sidebar d-flex flex-column p-3">
+    <h4 class="text-white mb-4">Pelanggaran Siswa</h4>
 
-            <?php if ($role === 'guru'): ?>
-                <li class="nav-item mb-1"><a href="catat_pelanggaran.php">Catat Pelanggaran</a></li>
-                <li class="nav-item mb-1"><a href="tindakan.php">Tindakan</a></li>
-                <li class="nav-item mb-1"><a href="riwayat.php">Riwayat</a></li>
-                <li class="nav-item mb-1"><a href="rekap_poin.php">Rekap Poin</a></li>
-            <?php endif; ?>
-        </ul>
-        <hr>
-        <a href="logout.php" class="text-danger">Logout</a>
-    </div>
+    <a href="dashboard.php">Dashboard</a>
+    <a href="kelola_guru.php">Kelola Guru</a>
+    <a href="kelola_siswa.php">Kelola Siswa</a>
+    <a href="kelola_kelas.php" class="active">Kelola Kelas</a>
+    <a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a>
+    <a href="penempatan_siswa.php">Penempatan Siswa</a>
+    <a href="kelola_wali_kelas.php">Kelola Wali Kelas</a>
+    <a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a>
+    <a href="laporan.php">Laporan</a>
+    <a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a>
+    <a href="about_me.php">About Me</a>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
-        <h2>Kelola Kelas</h2>
-        <a href="dashboard.php">Dashboard</a> | <a href="logout.php">Logout</a><hr>
+    <hr>
+    <a href="logout.php" class="text-danger">Logout</a>
+</div>
 
-        <!-- FORM INPUT / EDIT -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <form method="POST">
-                    <input type="hidden" name="id" value="<?= $edit['id']; ?>">
-                    <div class="mb-3">
-                        <label class="form-label">Nama Kelas (Contoh: XII RPL 1):</label>
-                        <input type="text" name="nama" class="form-control" value="<?= $edit['nama']; ?>" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Tingkat (Contoh: X, XI, XII):</label>
-                        <input type="text" name="tingkat" class="form-control" value="<?= $edit['tingkat']; ?>" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Jurusan (Contoh: RPL, TKJ):</label>
-                        <input type="text" name="jurusan" class="form-control" value="<?= $edit['jurusan']; ?>" required>
-                    </div>
-                    
-                    <button type="submit" name="simpan" class="btn btn-primary">Simpan</button>
-                    <?php if($edit['id']): ?><a href="kelola_kelas.php" class="btn btn-secondary">Batal</a><?php endif; ?>
-                </form>
-            </div>
+<!-- KONTEN UTAMA -->
+<div class="main-content">
+    <h2>Kelola Kelas</h2>
+    <p><a href="dashboard.php">Dashboard</a> / Data Kelas</p>
+
+    <!-- FORM TAMBAH / EDIT -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <?= $edit['id'] ? 'Edit Data Kelas' : 'Tambah Data Kelas' ?>
         </div>
 
-        <!-- TABEL DATA -->
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <table class="table table-bordered table-striped align-middle">
+        <div class="card-body">
+            <form method="POST">
+                <input type="hidden" name="id"
+                       value="<?= htmlspecialchars((string)$edit['id']) ?>">
+
+                <div class="mb-3">
+                    <label class="form-label">Nama Kelas</label>
+                    <input type="text" name="nama" class="form-control"
+                           placeholder="Contoh: XII RPL 1"
+                           value="<?= htmlspecialchars($edit['nama']) ?>" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Tingkat</label>
+                    <select name="tingkat" class="form-select" required>
+                        <option value="">Pilih Tingkat</option>
+                        <?php foreach (['X','XI','XII'] as $t): ?>
+                            <option value="<?= $t ?>"
+                                <?= $edit['tingkat'] == $t ? 'selected' : '' ?>>
+                                <?= $t ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Jurusan</label>
+                    <input type="text" name="jurusan" class="form-control"
+                           placeholder="Contoh: RPL, TKJ, DKV"
+                           value="<?= htmlspecialchars($edit['jurusan']) ?>" required>
+                </div>
+
+                <button type="submit" name="simpan" class="btn btn-primary">
+                    Simpan
+                </button>
+
+                <?php if ($edit['id']): ?>
+                    <a href="kelola_kelas.php" class="btn btn-secondary">Batal</a>
+                <?php endif; ?>
+            </form>
+        </div>
+    </div>
+
+    <!-- TABEL DATA KELAS -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            Data Kelas
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tabelKelas"
+                       class="table table-bordered table-striped table-hover align-middle w-100">
                     <thead class="table-dark">
                         <tr>
-                            <th width="5%">No</th>
-                            <th>Nama</th>
+                            <th>No</th>
+                            <th>Nama Kelas</th>
                             <th>Tingkat</th>
                             <th>Jurusan</th>
-                            <th width="15%" class="text-center">Aksi</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
+
                     <tbody>
-                        <?php $no=1; while($r = mysqli_fetch_assoc($data)): ?>
+                        <?php $no=1; while ($r=mysqli_fetch_assoc($data)): ?>
                         <tr>
-                            <td><?= $no++; ?></td>
-                            <td><?= $r['nama']; ?></td>
-                            <td><?= $r['tingkat']; ?></td>
-                            <td><?= $r['jurusan']; ?></td>
-                            <td class="text-center">
-                                <a href="kelola_kelas.php?edit=<?= $r['id']; ?>" class="btn btn-sm btn-warning">Edit</a> | 
-                                <a href="kelola_kelas.php?hapus=<?= $r['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus?')">Hapus</a>
+                            <td><?= $no++ ?></td>
+                            <td><?= htmlspecialchars($r['nama']) ?></td>
+                            <td><?= htmlspecialchars($r['tingkat']) ?></td>
+                            <td><?= htmlspecialchars($r['jurusan']) ?></td>
+                            <td class="text-center text-nowrap">
+                                <a href="kelola_kelas.php?edit=<?= (int)$r['id'] ?>"
+                                   class="btn btn-warning btn-sm">Edit</a>
+
+                                <a href="kelola_kelas.php?hapus=<?= (int)$r['id'] ?>"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Yakin ingin menghapus kelas ini?')">
+                                   Hapus
+                                </a>
                             </td>
                         </tr>
                         <?php endwhile; ?>
@@ -136,7 +206,42 @@ $data = mysqli_query($koneksi, "SELECT * FROM t_kelas");
             </div>
         </div>
     </div>
+</div>
 
+<!-- JAVASCRIPT -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    $('#tabelKelas').DataTable({
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        order: [],
+        columnDefs: [
+            { targets: [0, 4], orderable: false, searchable: false }
+        ],
+        language: {
+            search: "Cari kelas:",
+            lengthMenu: "Tampilkan _MENU_ data",
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ kelas",
+            infoEmpty: "Tidak ada data kelas",
+            infoFiltered: "(difilter dari _MAX_ data)",
+            zeroRecords: "Data kelas tidak ditemukan",
+            emptyTable: "Belum ada data kelas",
+            paginate: {
+                first: "Pertama",
+                last: "Terakhir",
+                next: "Berikutnya",
+                previous: "Sebelumnya"
+            }
+        }
+    });
+});
+</script>
+
 </body>
 </html>
+```

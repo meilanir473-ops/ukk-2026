@@ -74,7 +74,7 @@ $listKelas = mysqli_query($koneksi, "SELECT id, nama FROM t_kelas ORDER BY nama 
             <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
             <li class="nav-item mb-1"><a href="laporan.php" class="active">laporan</a></li>
             <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
-            <li class="nav-item mb-1"><a href="about.php">About Me</a></li>
+            <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
         </ul>
         <hr>
         <a href="logout.php" class="text-danger">Logout</a>
