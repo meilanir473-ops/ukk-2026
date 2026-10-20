@@ -9,6 +9,9 @@ if (!isset($_SESSION['user_id'])) {
 $role = $_SESSION['role'];
 // Menggunakan nama Anda secara langsung
 $nama = "Rani Meilani";
+
+// Path/lokasi foto (sesuai folder tempat Anda menyimpan foto)
+$foto = "assets/img/rani.jpg"; 
 ?>
 
 <!DOCTYPE html>
@@ -52,9 +55,16 @@ $nama = "Rani Meilani";
                     <div class="col-md-6 col-lg-5">
                         <div class="card shadow-sm border-0 rounded-4 p-4 text-center">
                             <div class="card-body">
+                                
+                                <!-- BAGIAN FOTO DIUBAH DI SINI -->
                                 <div class="mb-3">
-                                    <i class="bi bi-person-circle text-secondary" style="font-size: 5rem;"></i>
+                                    <img src="<?= htmlspecialchars($foto); ?>" 
+                                         alt="Foto <?= htmlspecialchars($nama); ?>" 
+                                         class="rounded-circle img-thumbnail shadow-sm" 
+                                         style="width: 150px; height: 150px; object-fit: cover;">
                                 </div>
+                                
+                                <!-- Nama -->
                                 <h3 class="fw-bold mb-1"><?= htmlspecialchars($nama); ?></h3>
                                 <p class="text-muted mb-3"><span class="badge bg-danger"><?= strtoupper(htmlspecialchars($role)); ?></span></p>
                                 <hr>

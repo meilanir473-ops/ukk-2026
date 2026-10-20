@@ -97,46 +97,80 @@ $data = mysqli_query($koneksi, "
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.css" rel="stylesheet">
 
+
 <style>
-body {background:#f8f9fa;}
+body {
+    background: #f8f9fa;
+}
 .sidebar {
-    position:fixed; top:0; left:0; width:250px; height:100vh;
-    background:#212529; overflow-y:auto; padding:20px;
+    min-height: 100vh;
+    background: #212529;
+    color: #fff;
+    position: fixed;
+    width: 250px;
+    top: 0;
+    left: 0;
+    overflow-y: auto;
 }
 .sidebar a {
-    display:block; padding:10px; color:#adb5bd; text-decoration:none;
+    color: #adb5bd;
+    text-decoration: none;
+    display: block;
+    padding: 10px 20px;
+    border-radius: 5px;
 }
-.sidebar a:hover,.sidebar a.active {background:#0d6efd;color:white;}
-.main-content {margin-left:250px;padding:20px;height:100vh;overflow-y:auto;}
-@media(max-width:768px) {
-    .sidebar {position:relative;width:100%;height:auto;}
-    .main-content {margin-left:0;height:auto;}
+.sidebar a:hover,
+.sidebar a.active {
+    color: #fff;
+    background: #0d6efd;
+}
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    min-width: 0;
+}
+@media (max-width: 767.98px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        min-height: auto;
+    }
+    .main-content {
+        margin-left: 0;
+    }
 }
 </style>
-</head>
-<body>
 
 <!-- SIDEBAR -->
-<div class="sidebar">
+<div class="sidebar d-flex flex-column p-3">
     <h4 class="text-white mb-4">Pelanggaran Siswa</h4>
-    <a href="dashboard.php">Dashboard</a>
-    <a href="kelola_guru.php">Kelola Guru</a>
-    <a href="kelola_siswa.php">Kelola Siswa</a>
-    <a href="kelola_kelas.php">Kelola Kelas</a>
-    <a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a>
-    <a href="penempatan_siswa.php">Penempatan Siswa</a>
-    <a href="kelola_wali_kelas.php" class="active">Kelola Wali Kelas</a>
-    <a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a>
-    <a href="kelola_jenis_pelanggaran.php">Jenis Pelanggaran</a>
-    <a href="laporan.php">Laporan</a>
-    <a href="about_me.php">About Me</a>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item mb-1"><a href="dashboard.php">Dashboard</a></li>
+        <li class="nav-item mb-1"><a href="kelola_guru.php">Kelola Guru</a></li>
+        <li class="nav-item mb-1"><a href="kelola_siswa.php">Kelola Siswa</a></li>
+        <li class="nav-item mb-1"><a href="kelola_kelas.php">Kelola Kelas</a></li>
+        <li class="nav-item mb-1"><a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a></li>
+        <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
+        <li class="nav-item mb-1"><a href="kelola_wali_kelas.php" class="active">Kelola Wali Kelas</a></li>
+        <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
+        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
+        <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
+        <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
+    </ul>
     <hr>
     <a href="logout.php" class="text-danger">Logout</a>
 </div>
 
+
 <!-- KONTEN -->
 <div class="main-content">
-    <h2>Kelola Wali Kelas</h2>
+   <h2 class="mb-3">Kelola Wali Kelas</h2>
+
+    <div class="mb-3">
+        <a href="dashboard.php" class="btn btn-secondary">
+            Kembali ke Dashboard
+        </a>
+        
     <hr>
 
     <div class="card shadow-sm mb-4">

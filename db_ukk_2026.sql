@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 30 Sep 2026 pada 02.44
--- Versi server: 10.4.27-MariaDB
--- Versi PHP: 8.0.25
+-- Waktu pembuatan: 20 Okt 2026 pada 02.22
+-- Versi server: 10.4.32-MariaDB
+-- Versi PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -638,8 +638,8 @@ CREATE TABLE `t_users` (
 --
 
 INSERT INTO `t_users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `role`, `created_at`, `updated_at`) VALUES
-(1, 'Administrator Utama', 'admin@gmail.com', NULL, '$2y$10$qR6iU7X2E4rYI6J1Jp7Nne9G9N0oV3v4L3mZ2a1bC5dE6fG7h8i9j', NULL, 'admin', NULL, NULL),
-(2, 'Guru Pengajar', 'guru@gmail.com', NULL, '$2y$10$qR6iU7X2E4rYI6J1Jp7Nne9G9N0oV3v4L3mZ2a1bC5dE6fG7h8i9j', NULL, 'guru', NULL, NULL);
+(1, 'Administrator Utama', 'admin@gmail.com', NULL, '123456', NULL, 'admin', NULL, NULL),
+(2, 'Guru Pengajar', 'guru@gmail.com', NULL, '123456', NULL, 'guru', NULL, NULL);
 
 -- --------------------------------------------------------
 
