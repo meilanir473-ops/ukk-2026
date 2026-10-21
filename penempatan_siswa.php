@@ -121,10 +121,6 @@ function e($v) { return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8'
                 </div>
             </form>
             <hr>
-            <a href="penempatan_siswa.php?<?= e(http_build_query(array_merge($_GET, ['action' => 'print']))); ?>" target="_blank" class="btn btn-dark btn-sm">Cetak / Print</a>
-            <a href="penempatan_siswa.php?<?= e(http_build_query(array_merge($_GET, ['action' => 'excel']))); ?>" class="btn btn-success btn-sm ms-2">Export Excel</a>
-        </div>
-    </div>
 
     <!-- TABEL DATA -->
     <div class="card shadow-sm">

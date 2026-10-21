@@ -192,7 +192,7 @@ if (!$data) {
         </li>
 
         <li class="nav-item mb-1">
-            <a href="about.php">About Me</a>
+            <a href="about_me.php">About Me</a>
         </li>
     </ul>
 
@@ -226,7 +226,7 @@ if (!$data) {
                        value="<?= htmlspecialchars((string)$edit['id']); ?>">
 
                 <div class="mb-3">
-                    <label class="form-label">NIP:</label>
+                    <label class="form-label">NIP</label>
                     <input type="text" name="nip"
                            class="form-control"
                            value="<?= htmlspecialchars($edit['nip'] ?? ''); ?>"
@@ -234,7 +234,7 @@ if (!$data) {
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Nama:</label>
+                    <label class="form-label">Nama</label>
                     <input type="text" name="nama"
                            class="form-control"
                            value="<?= htmlspecialchars($edit['nama'] ?? ''); ?>"
@@ -242,7 +242,7 @@ if (!$data) {
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Email:</label>
+                    <label class="form-label">Email</label>
                     <input type="email" name="email"
                            class="form-control"
                            value="<?= htmlspecialchars($edit['email'] ?? ''); ?>"

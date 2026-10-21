@@ -28,6 +28,7 @@ if (isset($_POST['simpan'])) {
                     tanggal_lahir='$tanggal_lahir',
                     alamat='$alamat'
                   WHERE id='$id'";
+
     } else {
         $query = "INSERT INTO t_siswa
                     (nis, nisn, nama, jenis_kelamin, tanggal_lahir, alamat, status_aktif)
@@ -220,13 +221,19 @@ $data = mysqli_query($koneksi, "SELECT * FROM t_siswa");
                     <div class="mb-3">
                         <label class="form-label">NIS</label>
                         <input type="text" name="nis" class="form-control"
-                               value="<?= htmlspecialchars((string)$edit['nis']); ?>" required>
+                               value="<?= htmlspecialchars((string)$edit['nis']); ?>"
+                               maxlenght="10"
+                               oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)"
+                               required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">NISN</label>
                         <input type="text" name="nisn" class="form-control"
-                               value="<?= htmlspecialchars((string)$edit['nisn']); ?>" required>
+                               value="<?= htmlspecialchars((string)$edit['nisn']); ?>" 
+                               maxlenght="10"
+                               oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10)"
+                               required>
                     </div>
 
                     <div class="mb-3">

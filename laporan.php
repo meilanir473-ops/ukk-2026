@@ -119,7 +119,6 @@ $listKelas = mysqli_query($koneksi, "SELECT id, nama FROM t_kelas ORDER BY nama 
                 <hr>
                 <div>
                     <a href="laporan.php?<?= http_build_query(array_merge($_GET, ['action'=>'print'])) ?>" target="_blank" class="btn btn-dark btn-sm">🖨️ Cetak / Print</a>
-                    <a href="laporan.php?<?= http_build_query(array_merge($_GET, ['action'=>'excel'])) ?>" class="btn btn-success btn-sm ms-2">📊 Export Excel</a>
                 </div>
             </div>
         </div>
