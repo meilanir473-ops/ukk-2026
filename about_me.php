@@ -79,7 +79,7 @@ $nama_user = $_SESSION['nama_user'] ?? 'Administrator Utama';
 
     <div class="card shadow-sm profile-card">
         <div class="card-body text-center p-4">
-            <img src="Foto.jpeg" alt="Foto Profil" class="rounded-circle mb-3" width="160" height="200" style="object-fit: cover;">
+            <img src="Foto.jpeg" alt="Foto Profil" class="rounded-circle mb-3" width="150" height="150" style="object-fit: cover;">
             <h3><?= htmlspecialchars($nama_user, ENT_QUOTES, 'UTF-8') ?></h3>
             <p class="text-muted">Informasi Pembuat Aplikasi Pelanggaran Siswa</p>
             <hr>
