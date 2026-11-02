@@ -152,7 +152,7 @@ $form = $edit ?: [
                 <a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a>
             </li>
             <li class="nav-item mb-1">
-                <a href="laporan.php">laporan</a>
+                <a href="laporan.php">Laporan</a>
             </li>
             <li class="nav-item mb-1">
                 <a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a>
