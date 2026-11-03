@@ -133,9 +133,10 @@ if (!$data) {
         <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
         <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
         <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
-        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
+        <li class="nav-item mb-1"> <a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
+        
     </ul>
     <hr>
     <a href="logout.php" class="text-danger">Logout</a>
@@ -146,12 +147,9 @@ if (!$data) {
 
     <div class="mb-3">
           <h2 class="mb-3">Kelola Tahun Ajaran</h2>
-        <a href="dashboard.php" class="btn btn-secondary">
-            Kembali ke Dashboard
-        </a>
-        <hr>
+      
     </div>
-    
+    <hr>
 
     <!-- FORM TAMBAH / EDIT DATA GURU -->
     <div class="card shadow-sm mb-4">

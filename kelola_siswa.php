@@ -166,7 +166,9 @@ $no = $offset + 1;
 <body>
 
 <!-- SIDEBAR -->
+<!-- SIDEBAR -->
 <div class="sidebar d-flex flex-column p-3">
+
     <h4 class="text-white mb-4">Pelanggaran Siswa</h4>
 
     <ul class="nav nav-pills flex-column mb-auto">
@@ -199,42 +201,36 @@ $no = $offset + 1;
         </li>
 
         <li class="nav-item mb-1">
-            <a href="kelola_kategori_pelanggaran.php">
-                Kelola Kategori Pelanggaran
-            </a>
+            <a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a>
         </li>
 
         <li class="nav-item mb-1">
+            <a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a>
+        </li>
+             <li class="nav-item mb-1">
             <a href="laporan.php">Laporan</a>
         </li>
-
-        <li class="nav-item mb-1">
-            <a href="kelola_jenis_pelanggaran.php">
-                Kelola Jenis Pelanggaran
-            </a>
-        </li>
+    
 
         <li class="nav-item mb-1">
             <a href="about_me.php">About Me</a>
         </li>
+
     </ul>
 
-    <hr>
+    <!-- LOGOUT DI BAWAH -->
+     <hr>
+    <div class="logout">
+        <a href="logout.php" class="text-danger">Logout</a>
+    </div>
 
-    <a href="logout.php" class="text-danger">Logout</a>
 </div>
-
 <!-- KONTEN UTAMA -->
 <div class="main-content">
 
     <h2 class="mb-3">
         <?= $edit ? 'Edit Data Siswa' : 'Kelola Siswa' ?>
     </h2>
-
-    <a href="dashboard.php" class="btn btn-secondary mb-3">
-        Kembali ke Dashboard
-    </a>
-
     <hr>
 
     <?php if ($pesan): ?>
@@ -257,7 +253,7 @@ $no = $offset + 1;
                            value="<?= $edit['id'] ?? '' ?>">
 
                     <div class="mb-3">
-                        <label class="form-label">NIS (Maks. 8 Angka)</label>
+                        <label class="form-label">NIS </label>
                         <input type="text" name="nis"
                                class="form-control"
                                maxlength="8"
@@ -267,7 +263,7 @@ $no = $offset + 1;
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">NISN (Maks. 10 Angka)</label>
+                        <label class="form-label">NISN </label>
                         <input type="text" name="nisn"
                                class="form-control"
                                maxlength="10"

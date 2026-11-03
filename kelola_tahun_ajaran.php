@@ -41,11 +41,13 @@ if (isset($_GET['hapus'])) {
 
 // DATA EDIT
 $edit = ['id' => '', 'nama' => '', 'tanggal_mulai' => '', 'tanggal_selesai' => '', 'status_aktif' => '1'];
+$is_edit = false;
 if (isset($_GET['edit'])) {
     $id = (int)$_GET['edit'];
     $hasil = mysqli_query($koneksi, "SELECT * FROM t_tahun_ajaran WHERE id=$id");
     if ($hasil && mysqli_num_rows($hasil) > 0) {
         $edit = mysqli_fetch_assoc($hasil);
+        $is_edit = true;
     }
 }
 
@@ -90,8 +92,8 @@ if (!$data) {
         <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
         <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
         <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
-        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
+        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
     </ul>
     <hr>
@@ -102,50 +104,61 @@ if (!$data) {
 <div class="main-content">
     <h2 class="mb-3">Kelola Tahun Ajaran</h2>
     <div class="mb-3">
-        <a href="dashboard.php" class="btn btn-secondary">Kembali ke Dashboard</a>
         <hr>
     </div>
 
-    <!-- FORM TAMBAH / EDIT -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <?= !empty($edit['id']) ? 'Edit Tahun Ajaran' : 'Tambah Tahun Ajaran'; ?>
-        </div>
-        <div class="card-body">
-            <form method="POST" action="kelola_tahun_ajaran.php">
-                <input type="hidden" name="id" value="<?= htmlspecialchars((string)$edit['id']); ?>">
+    <!-- TOMBOL TAMBAH DATA (SESUAI REFERENSI GAMBAR) -->
+    <div class="mb-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTahunAjaran">
+            + Tambah Tahun Ajaran
+        </button>
+    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Tahun Ajaran</label>
-                    <input type="text" name="nama" class="form-control" placeholder="Contoh: 2026/2027" value="<?= htmlspecialchars($edit['nama'] ?? ''); ?>" required>
-                </div>
+    <!-- MODAL FORM TAMBAH / EDIT -->
+    <div class="modal fade" id="modalTahunAjaran" tabindex="-1" aria-labelledby="modalTahunAjaranLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="kelola_tahun_ajaran.php">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="modalTahunAjaranLabel">
+                            <?= $is_edit ? 'Edit Tahun Ajaran' : 'Tambah Tahun Ajaran'; ?>
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" value="<?= htmlspecialchars((string)$edit['id']); ?>">
 
-                <div class="mb-3">
-                    <label class="form-label">Tanggal Mulai</label>
-                    <input type="date" name="tanggal_mulai" class="form-control" value="<?= htmlspecialchars($edit['tanggal_mulai'] ?? ''); ?>" required>
-                </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tahun Ajaran</label>
+                            <input type="text" name="nama" class="form-control" placeholder="Contoh: 2026/2027" value="<?= htmlspecialchars($edit['nama'] ?? ''); ?>" required>
+                        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Tanggal Selesai</label>
-                    <input type="date" name="tanggal_selesai" class="form-control" value="<?= htmlspecialchars($edit['tanggal_selesai'] ?? ''); ?>" min="<?= htmlspecialchars($edit['tanggal_mulai'] ?? ''); ?>" required>
-                </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal Mulai</label>
+                            <input type="date" name="tanggal_mulai" id="tanggal_mulai" class="form-control" value="<?= htmlspecialchars($edit['tanggal_mulai'] ?? ''); ?>" required>
+                        </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Status Aktif</label>
-                    <select name="status_aktif" class="form-select" required>
-                        <option value="1" <?= (string)$edit['status_aktif'] === '1' ? 'selected' : ''; ?>>Aktif</option>
-                        <option value="0" <?= (string)$edit['status_aktif'] === '0' ? 'selected' : ''; ?>>Tidak Aktif</option>
-                    </select>
-                </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal Selesai</label>
+                            <input type="date" name="tanggal_selesai" id="tanggal_selesai" class="form-control" value="<?= htmlspecialchars($edit['tanggal_selesai'] ?? ''); ?>" required>
+                        </div>
 
-                <button type="submit" name="simpan" class="btn btn-primary">
-                    <?= !empty($edit['id']) ? 'Update Data' : 'Simpan'; ?>
-                </button>
-
-                <?php if (!empty($edit['id'])): ?>
-                    <a href="kelola_tahun_ajaran.php" class="btn btn-secondary">Batal</a>
-                <?php endif; ?>
-            </form>
+                        <div class="mb-3">
+                            <label class="form-label">Status Aktif</label>
+                            <select name="status_aktif" class="form-select" required>
+                                <option value="1" <?= (string)$edit['status_aktif'] === '1' ? 'selected' : ''; ?>>Aktif</option>
+                                <option value="0" <?= (string)$edit['status_aktif'] === '0' ? 'selected' : ''; ?>>Tidak Aktif</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" name="simpan" class="btn btn-primary">
+                            <?= $is_edit ? 'Update Data' : 'Simpan'; ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -198,6 +211,7 @@ if (!$data) {
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
 <script>
 $(document).ready(function () {
+    // Inisialisasi DataTables
     $('#tabelTahunAjaran').DataTable({
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50, 100],
@@ -213,6 +227,17 @@ $(document).ready(function () {
             emptyTable: "Belum ada data tahun ajaran",
             paginate: { first: "Pertama", last: "Terakhir", next: "Berikutnya", previous: "Sebelumnya" }
         }
+    });
+
+    // Jika parameter edit aktif di URL, otomatis buka modal form-nya
+    <?php if ($is_edit): ?>
+    var myModal = new bootstrap.Modal(document.getElementById('modalTahunAjaran'));
+    myModal.show();
+    <?php endif; ?>
+
+    // Validasi tanggal selesai minimal sama dengan tanggal mulai
+    $('#tanggal_mulai').on('change', function() {
+        $('#tanggal_selesai').attr('min', $(this).val());
     });
 });
 </script>

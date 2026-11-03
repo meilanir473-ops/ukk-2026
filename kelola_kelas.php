@@ -126,41 +126,20 @@ $form = $edit ?: [
     <div class="sidebar d-flex flex-column p-3">
         <h4 class="text-white mb-4">Pelanggaran Siswa</h4>
 
-        <ul class="nav nav-pills flex-column mb-auto">
-            <li class="nav-item mb-1">
-                <a href="dashboard.php">Dashboard</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="kelola_guru.php">Kelola Guru</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="kelola_siswa.php">Kelola Siswa</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="kelola_kelas.php" class="active">Kelola Kelas</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="penempatan_siswa.php">Penempatan Siswa</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="kelola_wali_kelas.php">Kelola Wali Kelas</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="laporan.php">Laporan</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a>
-            </li>
-            <li class="nav-item mb-1">
-                <a href="about_me.php">About Me</a>
-            </li>
-        </ul>
+         <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item mb-1"><a href="dashboard.php">Dashboard</a></li>
+        <li class="nav-item mb-1"><a href="kelola_guru.php">Kelola Guru</a></li>
+        <li class="nav-item mb-1"><a href="kelola_siswa.php" >Kelola Siswa</a></li>
+        <li class="nav-item mb-1"><a href="kelola_kelas.php"class="active">Kelola Kelas</a></li>
+        <li class="nav-item mb-1"><a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a></li>
+        <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
+        <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
+        <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
+        <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
+        <li class="nav-item mb-1"> <a href="laporan.php">Laporan</a></li>
+        <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
+        
+    </ul>
 
         <hr>
         <a href="logout.php" class="text-danger">Logout</a>
@@ -170,11 +149,6 @@ $form = $edit ?: [
     <div class="main-content">
 
         <h2 class="mb-3">Kelola Kelas</h2>
-
-        <a href="dashboard.php" class="btn btn-secondary mb-1">
-            Kembali ke Dashboard
-        </a>
-
         <hr>
 
         <!-- FORM TAMBAH / EDIT -->

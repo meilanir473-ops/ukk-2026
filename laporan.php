@@ -72,9 +72,10 @@ $listKelas = mysqli_query($koneksi, "SELECT id, nama FROM t_kelas ORDER BY nama 
             <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
             <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
             <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
-            <li class="nav-item mb-1"><a href="laporan.php" class="active">Laporan</a></li>
             <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
+             <li class="nav-item mb-1"><a href="laporan.php" class="active">Laporan</a></li>
             <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
+            
         </ul>
         <hr>
         <a href="logout.php" class="text-danger">Logout</a>
@@ -84,11 +85,7 @@ $listKelas = mysqli_query($koneksi, "SELECT id, nama FROM t_kelas ORDER BY nama 
     <div class="main-content">
         <h2>Laporan Penempatan Siswa</h2>
             <div class="mb-3">
-        <a href="dashboard.php" class="btn btn-secondary">
-            Kembali ke Dashboard
-        </a>
         <hr>
-
         <!-- FILTER & AKSI -->
         <div class="card shadow-sm mb-4 no-print">
             <div class="card-body">

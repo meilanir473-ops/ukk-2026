@@ -134,9 +134,10 @@ $data = mysqli_query($koneksi,
         <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
         <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
         <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
-        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php" class="active">Kelola Jenis Pelanggaran</a></li>
+         <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
+       
     </ul>
 
     <hr>
@@ -146,7 +147,6 @@ $data = mysqli_query($koneksi,
 <!-- KONTEN UTAMA -->
 <div class="main-content">
     <h2 class="mb-3">Kelola Jenis Pelanggaran</h2>
-    <a href="dashboard.php" class="btn btn-secondary mb-3">Kembali ke Dashboard</a>
     <hr>
     <!-- FORM TAMBAH / EDIT -->
     <div class="card shadow-sm mb-4">
