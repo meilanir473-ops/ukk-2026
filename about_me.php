@@ -1,4 +1,3 @@
-
 <?php
 require_once 'koneksi.php';
 
@@ -11,7 +10,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$role = strtolower($_SESSION['role'] ?? '');
+$role  = strtolower($_SESSION['role'] ?? '');
+$is_wk = $_SESSION['is_wali_kelas'] ?? false;
 
 if (!in_array($role, ['admin', 'guru'])) {
     header("Location: login.php");
@@ -132,10 +132,6 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
                     Kelola Jenis Pelanggaran
                 </a>
             </li>
-             </li>
-                  <li class="nav-item mb-1">
-                    <a href="laporan.php">Laporan</a>
-                </li>
 
         <?php elseif ($role === 'guru'): ?>
 
@@ -157,21 +153,27 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
 
         <?php endif; ?>
 
+        <!-- Menu Laporan: Hanya muncul jika Admin atau Wali Kelas -->
+        <?php if ($role === 'admin' || $is_wk === true): ?>
+            <li class="nav-item mb-1">
+                <a href="laporan.php" class="<?= basename($_SERVER['PHP_SELF']) == 'laporan.php' ? 'active' : ''; ?>">Laporan</a>
+            </li>
+        <?php endif; ?>
+
         <li class="nav-item mb-1">
             <a href="about_me.php" class="active">About Me</a>
         </li>
-        
 
     </ul>
 
     <hr>
-    <a href="logout.php" class="text-danger">Logout</a>
+    <a href="logout.php" class="text-danger" onclick="return confirm('Yakin ingin keluar?')">Logout</a>
 </div>
 
 <!-- KONTEN UTAMA -->
 <div class="main-content">
     <h2 class="mb-3">About Me</h2>
-<hr>
+    <hr>
     <div class="card shadow-sm profile-card">
         <div class="card-body text-center p-4">
 
@@ -182,9 +184,7 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
                  height="150"
                  style="object-fit: cover;">
 
-            <h3>
-                <?= htmlspecialchars($nama_user, ENT_QUOTES, 'UTF-8') ?>
-            </h3>
+            <h3>Rani Meilani</h3>
 
             <p class="text-muted">
                 Informasi Pembuat Aplikasi Pelanggaran Siswa
@@ -207,7 +207,7 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
             <hr>
 
             <div class="text-start">
-                <p><strong>Nama:</strong> Raniameilani</p>
+                <p><strong>Nama:</strong> Rani Meilani</p>
                 <p><strong>Sekolah:</strong> SMK Muhammadiyah</p>
                 <p><strong>Jurusan:</strong> Rekayasa Perangkat Lunak</p>
                 <p><strong>Tujuan:</strong> Memenuhi tugas UKK 2026</p>

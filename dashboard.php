@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $role = $_SESSION['role'];
-$nama = $_SESSION['nama_user'];
+$nama = $_SESSION['name'] ?? ($_SESSION['nama'] ?? 'Pengguna');
 
 // Menyesuaikan koneksi dari koneksi.php
 $db = isset($conn) ? $conn : $koneksi;

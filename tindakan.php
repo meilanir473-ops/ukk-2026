@@ -1,6 +1,11 @@
 <?php
-$koneksi = mysqli_connect("localhost", "root", "", "db_ukk_2026");
-if (!$koneksi) die("Koneksi gagal: " . mysqli_connect_error());
+require_once 'koneksi.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$role  = $_SESSION['role'] ?? '';
+$is_wk = $_SESSION['is_wali_kelas'] ?? false;
 
 function e($val) { return htmlspecialchars((string)($val ?? ''), ENT_QUOTES, 'UTF-8'); }
 
@@ -48,6 +53,14 @@ $query = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran_siswa ORDER BY id D
         <li class="nav-item mb-1"><a href="tindakan.php" class="active">Tindakan</a></li>
         <li class="nav-item mb-1"><a href="riwayat.php">Riwayat</a></li>
         <li class="nav-item mb-1"><a href="rekap_poin.php">Rekap Poin</a></li>
+        
+        <!-- Menu Laporan: Hanya tampil jika Admin atau Wali Kelas -->
+        <?php if ($role === 'admin' || $is_wk === true): ?>
+            <li class="nav-item mb-1">
+                <a href="laporan.php" class="<?= basename($_SERVER['PHP_SELF']) == 'laporan.php' ? 'active' : ''; ?>">Laporan</a>
+            </li>
+        <?php endif; ?>
+
         <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
     </ul>
     <hr><a href="logout.php" class="text-danger" onclick="return confirm('Yakin ingin keluar?')">Logout</a>

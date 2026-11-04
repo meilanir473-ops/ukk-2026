@@ -1,10 +1,13 @@
 <?php
 require_once 'koneksi.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header("Location: login.php");
     exit();
 }
+
+$pesan = '';
 
 // 1. PROSES SIMPAN (TAMBAH / EDIT)
 if (isset($_POST['simpan'])) {
@@ -55,6 +58,7 @@ if (isset($_GET['hapus'])) {
 }
 
 // AMBIL DATA UNTUK EDIT
+$aksi = $_GET['aksi'] ?? '';
 $edit_id = $_GET['edit'] ?? '';
 $edit = $edit_id ? mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM t_guru WHERE id='$edit_id'")) : null;
 
@@ -134,9 +138,8 @@ if (!$data) {
         <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
         <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
         <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
-        <li class="nav-item mb-1"> <a href="laporan.php">Laporan</a></li>
+        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
-        
     </ul>
     <hr>
     <a href="logout.php" class="text-danger">Logout</a>
@@ -145,118 +148,134 @@ if (!$data) {
 <!-- KONTEN UTAMA -->
 <div class="main-content">
 
-    <div class="mb-3">
-          <h2 class="mb-3">Kelola Tahun Ajaran</h2>
-      
-    </div>
+    <h2 class="mb-3">
+        <?= $edit ? 'Edit Data Guru' : ($aksi === 'tambah' ? 'Tambah Data Guru' : 'Kelola Guru'); ?>
+    </h2>
     <hr>
 
-    <!-- FORM TAMBAH / EDIT DATA GURU -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <?= $edit ? 'Edit Data Guru' : 'Tambah Data Guru'; ?>
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                <input type="hidden" name="id" value="<?= htmlspecialchars($edit['id'] ?? ''); ?>">
+    <?php if ($aksi === 'tambah' || $edit): ?>
+        <!-- FORM TAMBAH / EDIT DATA GURU -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <?= $edit ? 'Edit Data Guru' : 'Tambah Data Guru'; ?>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="id" value="<?= htmlspecialchars($edit['id'] ?? ''); ?>">
 
-                <div class="mb-3">
-                    <label class="form-label">NIP</label>
-                    <input type="text" name="nip" class="form-control" 
-                           value="<?= htmlspecialchars($edit['nip'] ?? ''); ?>" 
-                           maxlength="18" 
-                           oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,18)" 
-                           required>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">NIP</label>
+                        <input type="text" name="nip" class="form-control" 
+                               value="<?= htmlspecialchars($edit['nip'] ?? ''); ?>" 
+                               maxlength="18" 
+                               oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,18)" 
+                               required>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Nama</label>
-                    <input type="text" name="nama" class="form-control" 
-                           value="<?= htmlspecialchars($edit['nama'] ?? ''); ?>" 
-                           required>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nama</label>
+                        <input type="text" name="nama" class="form-control" 
+                               value="<?= htmlspecialchars($edit['nama'] ?? ''); ?>" 
+                               required>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" 
-                           value="<?= htmlspecialchars($edit['email'] ?? ''); ?>" 
-                           required>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" 
+                               value="<?= htmlspecialchars($edit['email'] ?? ''); ?>" 
+                               required>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Password Login</label>
-                    <input type="password" name="password" class="form-control" 
-                           placeholder="<?= $edit ? 'Kosongkan jika tidak ingin mengubah password' : 'Masukkan password'; ?>">
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password Login</label>
+                        <input type="password" name="password" class="form-control" 
+                               placeholder="<?= $edit ? 'Kosongkan jika tidak ingin mengubah password' : 'Masukkan password'; ?>">
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Konfirmasi Password</label>
-                    <input type="password" name="konfirmasi_password" class="form-control" 
-                           placeholder="Ulangi password">
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Konfirmasi Password</label>
+                        <input type="password" name="konfirmasi_password" class="form-control" 
+                               placeholder="Ulangi password">
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Status Aktif</label>
-                    <select name="status_aktif" class="form-control" required>
-                        <option value="Aktif" <?= (($edit['status_aktif'] ?? 1) == 1) ? 'selected' : ''; ?>>Aktif</option>
-                        <option value="Tidak Aktif" <?= (($edit['status_aktif'] ?? 1) == 0) ? 'selected' : ''; ?>>Tidak Aktif</option>
-                    </select>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status Aktif</label>
+                        <select name="status_aktif" class="form-select" required>
+                            <option value="Aktif" <?= (($edit['status_aktif'] ?? 1) == 1) ? 'selected' : ''; ?>>Aktif</option>
+                            <option value="Tidak Aktif" <?= (($edit['status_aktif'] ?? 1) == 0) ? 'selected' : ''; ?>>Tidak Aktif</option>
+                        </select>
+                    </div>
 
-                <button type="submit" name="simpan" class="btn btn-primary">
-                    <?= $edit ? 'Update Data' : 'Simpan'; ?>
-                </button>
+                    <button type="submit" name="simpan" class="btn btn-primary">
+                        <?= $edit ? 'Update Data' : 'Simpan'; ?>
+                    </button>
 
-                <?php if ($edit): ?>
                     <a href="kelola_guru.php" class="btn btn-secondary">Batal</a>
-                <?php endif; ?>
-            </form>
-        </div>
-    </div>
-
-    <!-- TABEL DATA GURU -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">
-            Data Guru
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="tabelGuru" class="table table-bordered table-striped table-hover align-middle w-100">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>No</th>
-                            <th>NIP</th>
-                            <th>Nama</th>
-                            <th>Email</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $no = 1; ?>
-                        <?php while ($r = mysqli_fetch_assoc($data)): ?>
-                            <tr>
-                                <td><?= $no++; ?></td>
-                                <td><?= htmlspecialchars($r['nip'] ?? ''); ?></td>
-                                <td><?= htmlspecialchars($r['nama'] ?? ''); ?></td>
-                                <td><?= htmlspecialchars($r['email'] ?? ''); ?></td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <a href="kelola_guru.php?edit=<?= (int)$r['id']; ?>" class="btn btn-sm btn-warning">
-                                            Edit
-                                        </a>
-                                        <a href="kelola_guru.php?hapus=<?= (int)$r['id']; ?>" class="btn btn-sm btn-danger"
-                                           onclick="return confirm('Yakin ingin menghapus data guru ini?')">
-                                            Hapus
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
+                </form>
             </div>
         </div>
-    </div>
+
+    <?php else: ?>
+
+        <!-- TOMBOL TAMBAH DATA GURU -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Data Guru</h5>
+            <a href="kelola_guru.php?aksi=tambah" class="btn btn-primary">
+                + Tambah Data Guru
+            </a>
+        </div>
+
+        <!-- TABEL DATA GURU -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                Data Guru
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="tabelGuru" class="table table-bordered table-striped table-hover align-middle w-100">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>No</th>
+                                <th>NIP</th>
+                                <th>Nama</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php $no = 1; ?>
+                            <?php while ($r = mysqli_fetch_assoc($data)): ?>
+                                <tr>
+                                    <td><?= $no++; ?></td>
+                                    <td><?= htmlspecialchars($r['nip'] ?? ''); ?></td>
+                                    <td><?= htmlspecialchars($r['nama'] ?? ''); ?></td>
+                                    <td><?= htmlspecialchars($r['email'] ?? ''); ?></td>
+                                    <td>
+                                        <span class="badge bg-<?= (($r['status_aktif'] ?? 1) == 1) ? 'success' : 'secondary'; ?>">
+                                            <?= (($r['status_aktif'] ?? 1) == 1) ? 'Aktif' : 'Tidak Aktif'; ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <a href="kelola_guru.php?edit=<?= (int)$r['id']; ?>" class="btn btn-sm btn-warning">
+                                                Edit
+                                            </a>
+                                            <a href="kelola_guru.php?hapus=<?= (int)$r['id']; ?>" class="btn btn-sm btn-danger"
+                                               onclick="return confirm('Yakin ingin menghapus data guru ini?')">
+                                                Hapus
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    <?php endif; ?>
 
 </div>
 
@@ -272,7 +291,7 @@ $(document).ready(function () {
     $('#tabelGuru').DataTable({
         language: {
             search: "Cari data:",
-            lengthMenu: "Tampilkan _MENU_ data",
+            lengthMenu: "Tampilkan 10 data",
             info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data guru",
             infoEmpty: "Tidak ada data guru",
             infoFiltered: "(difilter dari _MAX_ total data)",
@@ -290,7 +309,7 @@ $(document).ready(function () {
         order: [[2, 'asc']],
         columnDefs: [
             {
-                targets: 4,
+                targets: 5,
                 orderable: false,
                 searchable: false
             }

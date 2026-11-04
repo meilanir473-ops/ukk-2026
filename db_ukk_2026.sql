@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 03 Nov 2026 pada 06.22
+-- Waktu pembuatan: 04 Nov 2026 pada 06.21
 -- Versi server: 10.4.32-MariaDB
--- Versi PHP: 8.0.30
+-- Versi PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -178,6 +178,38 @@ CREATE TABLE `t_kelas_siswa` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data untuk tabel `t_kelas_siswa`
+--
+
+INSERT INTO `t_kelas_siswa` (`id`, `siswa_id`, `tahun_ajaran_id`, `kelas_id`, `tanggal_mulai`, `tanggal_selesai`, `status_aktif`, `created_at`, `updated_at`) VALUES
+(55, 1, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(56, 2, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(57, 3, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(58, 4, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(59, 5, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(60, 6, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(61, 7, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(62, 8, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(63, 9, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(64, 10, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(65, 11, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(66, 12, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(67, 13, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(68, 14, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(69, 15, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(70, 16, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(71, 17, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(72, 18, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(73, 19, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(74, 20, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(75, 21, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(76, 22, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(77, 23, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(78, 24, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(79, 25, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05'),
+(80, 26, 51, 33, '2026-07-15', '2027-06-20', 1, '2026-11-04 02:17:05', '2026-11-04 02:17:05');
 
 -- --------------------------------------------------------
 
@@ -400,8 +432,7 @@ INSERT INTO `t_siswa` (`id`, `nis`, `nisn`, `nama`, `jenis_kelamin`, `tanggal_la
 (23, '102410565', '0085000023', 'SHERLY SATRIANI', 'P', '2008-10-04', 'Tasikmalaya', 1, '2026-11-03 04:27:52', '2026-11-03 04:27:52'),
 (24, '102410566', '0085000024', 'SOFI NURJANAH', 'P', '2008-11-11', 'Tasikmalaya', 1, '2026-11-03 04:27:52', '2026-11-03 04:27:52'),
 (25, '102410567', '0085000025', 'SURAIYA SALSABILA AZZAHRA', 'P', '2008-12-20', 'Tasikmalaya', 1, '2026-11-03 04:27:52', '2026-11-03 04:27:52'),
-(26, '102410568', '0085000026', 'TONI ANTONIO', 'L', '2008-02-14', 'Tasikmalaya', 1, '2026-11-03 04:27:52', '2026-11-03 04:27:52'),
-(52, '33333333', '2222222222', 'QQQQQQ', 'L', '2009-07-01', 'QQQQ', 1, '2026-11-03 05:03:25', '2026-11-03 05:03:25');
+(26, '102410568', '0085000026', 'TONI ANTONIO', 'L', '2008-02-14', 'Tasikmalaya', 1, '2026-11-03 04:27:52', '2026-11-03 04:27:52');
 
 -- --------------------------------------------------------
 
@@ -424,9 +455,8 @@ CREATE TABLE `t_tahun_ajaran` (
 --
 
 INSERT INTO `t_tahun_ajaran` (`id`, `nama`, `tanggal_mulai`, `tanggal_selesai`, `status_aktif`, `created_at`, `updated_at`) VALUES
-(2, '2027/2028', '2027-07-16', '2028-06-21', 0, '2026-11-03 04:50:22', '2026-11-03 04:50:22'),
 (51, '2025/2026', '2025-05-14', '2026-11-14', 1, NULL, NULL),
-(53, '2023/2024', '2023-07-03', '2024-07-10', 0, NULL, NULL);
+(56, '2023/2024', '2023-05-04', '2024-07-04', 0, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -477,13 +507,13 @@ INSERT INTO `t_users` (`id`, `name`, `email`, `email_verified_at`, `password`, `
 (24, 'Chandra Aditya Yusup, S.Pd', 'chandra@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
 (25, 'Arif Kusmawan, S.Pd', 'arif@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
 (26, 'Asep Taufiq Hidayat, S.Kom', 'aseptaufiq@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
-(27, 'Rendy Ichsan Kusumaḥ, S.T', 'rendy@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
+(27, 'Rendy Ichsan Kusumaḥ, S.T', 'rendy@gmail.com', NULL, '$2y$10$TBS9TYiIzWEWfygk1zJrRumv1/IqpP4c.shJvdCWVreXYMZmcQVES', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
 (28, 'Feri Rahmawan, S.Pd', 'feri@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
 (29, 'Ari Sandriana, S.Kom', 'arisandriana@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
-(30, 'Yaneu Nurdian, S.Pd, M.Pd', 'yaneu@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
+(30, 'Yaneu Nurdian, S.Pd, M.Pd', 'yaneu@gmail.com', NULL, '$2y$10$HZ2VlBJzUH/zx1vLVGYfOudUt4MNnqTAvD/iQThW2Iipy/WCOof8e', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
 (31, 'Ucu Muhammad Khoer N, S.Pd', 'ucu@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
 (32, 'Mira Dwi Rahmawati, S.Ag', 'mira@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
-(33, 'Aldi Maulana, S.Pd', 'aldi@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
+(33, 'Aldi Maulana, S.Pd', 'aldi@gmail.com', NULL, '$2y$10$7dtzQv0irk5nbsolMVdGaeqmr8vWr9W7LzzbJu1N3MGBxiSO272N.', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
 (34, 'Eli Rosliah, S.Pd', 'eli@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
 (35, 'Isni Nur Fitriani, S.Pd', 'isni@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
 (36, 'Aanisah Putri Nur Aini, S.Pd', 'aanisah@gmail.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'guru', '2026-11-03 04:14:53', '2026-11-03 04:14:53'),
@@ -532,7 +562,7 @@ CREATE TABLE `t_wali_kelas` (
 --
 
 INSERT INTO `t_wali_kelas` (`id`, `tahun_ajaran_id`, `kelas_id`, `guru_id`, `tanggal_mulai`, `tanggal_selesai`, `status_aktif`, `created_at`, `updated_at`) VALUES
-(51, 51, 33, 32, '2026-04-07', '2026-05-20', 1, NULL, NULL);
+(1, 51, 33, 32, '2026-07-15', '2027-06-20', 1, '2026-11-04 04:00:40', '2026-11-04 04:00:40');
 
 --
 -- Indexes for dumped tables
@@ -632,7 +662,7 @@ ALTER TABLE `t_kelas`
 -- AUTO_INCREMENT untuk tabel `t_kelas_siswa`
 --
 ALTER TABLE `t_kelas_siswa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT untuk tabel `t_pelanggaran`
@@ -662,7 +692,7 @@ ALTER TABLE `t_siswa`
 -- AUTO_INCREMENT untuk tabel `t_tahun_ajaran`
 --
 ALTER TABLE `t_tahun_ajaran`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT untuk tabel `t_users`
@@ -674,7 +704,7 @@ ALTER TABLE `t_users`
 -- AUTO_INCREMENT untuk tabel `t_wali_kelas`
 --
 ALTER TABLE `t_wali_kelas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)

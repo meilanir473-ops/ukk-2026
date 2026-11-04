@@ -1,6 +1,7 @@
-
 <?php
 require_once 'koneksi.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
@@ -45,7 +46,8 @@ $cari = mysqli_real_escape_string($koneksi, $_GET['cari'] ?? '');
 $where = $cari ? "WHERE nama LIKE '%$cari%' OR tingkat LIKE '%$cari%' OR jurusan LIKE '%$cari%'" : "";
 
 $total = mysqli_num_rows(mysqli_query($koneksi, "SELECT 1 FROM t_kelas $where"));
-$pages = ceil($total / $limit);
+$pages = max(1, ceil($total / $limit));
+$h = min($h, $pages);
 $data = mysqli_query($koneksi, "SELECT * FROM t_kelas $where LIMIT $offset, $limit");
 $no = $offset + 1;
 
@@ -138,224 +140,245 @@ $form = $edit ?: [
         <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
         <li class="nav-item mb-1"> <a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
-        
     </ul>
 
         <hr>
         <a href="logout.php" class="text-danger">Logout</a>
     </div>
 
-    <!-- KONTEN UTAMA: TAMPILAN DISESUAIKAN -->
+    <!-- KONTEN UTAMA -->
     <div class="main-content">
 
-        <h2 class="mb-3">Kelola Kelas</h2>
+        <h2 class="mb-3">
+            <?= $edit ? 'Edit Data Kelas' : ($aksi === 'tambah' ? 'Tambah Data Kelas' : 'Kelola Kelas'); ?>
+        </h2>
         <hr>
 
-        <!-- FORM TAMBAH / EDIT -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-header bg-primary text-white">
-                <?= $edit ? 'Edit Data Kelas' : 'Tambah Data Kelas'; ?>
-            </div>
+        <?php if ($aksi === 'tambah' || $edit): ?>
+            <!-- FORM TAMBAH / EDIT -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <?= $edit ? 'Edit Data Kelas' : 'Tambah Data Kelas'; ?>
+                </div>
 
-            <div class="card-body">
-                <form method="POST" action="kelola_kelas.php">
-                    <input type="hidden" name="id"
-                        value="<?= htmlspecialchars($form['id'] ?? ''); ?>">
+                <div class="card-body">
+                    <form method="POST" action="kelola_kelas.php">
+                        <input type="hidden" name="id"
+                            value="<?= htmlspecialchars($form['id'] ?? ''); ?>">
 
-                    <div class="mb-3">
-                        <label class="form-label">Nama Kelas</label>
-                        <input type="text" name="nama" class="form-control"
-                            placeholder="Contoh: XII RPL 1"
-                            value="<?= htmlspecialchars($form['nama'] ?? ''); ?>"
-                            required>
-                    </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Kelas</label>
+                            <input type="text" name="nama" class="form-control"
+                                placeholder="Contoh: XII RPL 1"
+                                value="<?= htmlspecialchars($form['nama'] ?? ''); ?>"
+                                required>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Tingkat</label>
-                        <input type="text" name="tingkat" class="form-control"
-                            placeholder="Contoh: XII"
-                            value="<?= htmlspecialchars($form['tingkat'] ?? ''); ?>"
-                            required>
-                    </div>
+                        <!-- DROPDOWN TINGKAT -->
+                        <div class="mb-3">
+                            <label class="form-label">Tingkat</label>
+                            <select name="tingkat" class="form-select" required>
+                                <option value="" disabled <?= empty($form['tingkat']) ? 'selected' : ''; ?>>Pilih Tingkat</option>
+                                <option value="X" <?= ($form['tingkat'] ?? '') == 'X' ? 'selected' : ''; ?>>X</option>
+                                <option value="XI" <?= ($form['tingkat'] ?? '') == 'XI' ? 'selected' : ''; ?>>XI</option>
+                                <option value="XII" <?= ($form['tingkat'] ?? '') == 'XII' ? 'selected' : ''; ?>>XII</option>
+                                <option value="XIII" <?= ($form['tingkat'] ?? '') == 'XIII' ? 'selected' : ''; ?>>XIII</option>
+                            </select>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Jurusan</label>
-                        <input type="text" name="jurusan" class="form-control"
-                            placeholder="Contoh: RPL, TKJ"
-                            value="<?= htmlspecialchars($form['jurusan'] ?? ''); ?>"
-                            required>
-                    </div>
+                        <!-- DROPDOWN JURUSAN -->
+                        <div class="mb-3">
+                            <label class="form-label">Jurusan</label>
+                            <select name="jurusan" class="form-select" required>
+                                <option value="" disabled <?= empty($form['jurusan']) ? 'selected' : ''; ?>>Pilih Jurusan</option>
+                                <option value="RPL" <?= ($form['jurusan'] ?? '') == 'RPL' ? 'selected' : ''; ?>>RPL (Rekayasa Perangkat Lunak)</option>
+                                <option value="TKJ" <?= ($form['jurusan'] ?? '') == 'TKJ' ? 'selected' : ''; ?>>TKJ (Teknik Komputer dan Jaringan)</option>
+                                <option value="TBSM" <?= ($form['jurusan'] ?? '') == 'TBSM' ? 'selected' : ''; ?>>TBSM (Teknik Bisnis Sepeda Motor)</option>
+                                <option value="OTKP" <?= ($form['jurusan'] ?? '') == 'OTKP' ? 'selected' : ''; ?>>OTKP (Otomatisasi Tata Kelola Perkantoran)</option>
+                                <option value="AKL" <?= ($form['jurusan'] ?? '') == 'AKL' ? 'selected' : ''; ?>>AKL (Akuntansi dan Keuangan Lembaga)</option>
+                            </select>
+                        </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Status Aktif</label>
-                        <select name="status_aktif" class="form-select" required>
-                            <option value="Aktif"
-                                <?= (($form['status_aktif'] ?? 1) == 1 ||
-                                    ($form['status_aktif'] ?? '') == 'Aktif')
-                                    ? 'selected' : ''; ?>>
-                                Aktif
-                            </option>
+                        <div class="mb-3">
+                            <label class="form-label">Status Aktif</label>
+                            <select name="status_aktif" class="form-select" required>
+                                <option value="Aktif"
+                                    <?= (($form['status_aktif'] ?? 1) == 1 ||
+                                        ($form['status_aktif'] ?? '') == 'Aktif')
+                                        ? 'selected' : ''; ?>>
+                                    Aktif
+                                </option>
 
-                            <option value="Tidak Aktif"
-                                <?= (($form['status_aktif'] ?? 1) == 0 ||
-                                    ($form['status_aktif'] ?? '') == 'Tidak Aktif')
-                                    ? 'selected' : ''; ?>>
-                                Tidak Aktif
-                            </option>
-                        </select>
-                    </div>
+                                <option value="Tidak Aktif"
+                                    <?= (($form['status_aktif'] ?? 1) == 0 ||
+                                        ($form['status_aktif'] ?? '') == 'Tidak Aktif')
+                                        ? 'selected' : ''; ?>>
+                                    Tidak Aktif
+                                </option>
+                            </select>
+                        </div>
 
-                    <button type="submit" name="simpan" class="btn btn-primary">
-                        Simpan
-                    </button>
+                        <button type="submit" name="simpan" class="btn btn-primary">
+                            Simpan
+                        </button>
 
-                    <?php if ($edit): ?>
                         <a href="kelola_kelas.php" class="btn btn-secondary">
                             Batal
                         </a>
-                    <?php endif; ?>
-                </form>
-            </div>
-        </div>
-
-        <!-- TABEL DATA KELAS -->
-        <div class="card shadow-sm">
-            <div class="card-header bg-dark text-white">
-                Data Kelas
+                    </form>
+                </div>
             </div>
 
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped align-middle"
-                        id="tabelKelas">
+        <?php else: ?>
 
-                        <thead class="table-dark">
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Kelas</th>
-                                <th>Tingkat</th>
-                                <th>Jurusan</th>
-                                <th>Status</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
+            <!-- TOMBOL TAMBAH DATA KELAS -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>Data Kelas</h5>
+                <a href="kelola_kelas.php?aksi=tambah" class="btn btn-primary">
+                    + Tambah Data Kelas
+                </a>
+            </div>
 
-                        <tbody>
-                            <?php while ($r = mysqli_fetch_assoc($data)): ?>
+            <!-- TABEL DATA KELAS -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    Data Kelas
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle"
+                            id="tabelKelas">
+
+                            <thead class="table-dark">
                                 <tr>
-                                    <td><?= $no++; ?></td>
+                                    <th>No</th>
+                                    <th>Nama Kelas</th>
+                                    <th>Tingkat</th>
+                                    <th>Jurusan</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
 
-                                    <td>
-                                        <?= htmlspecialchars($r['nama']); ?>
-                                    </td>
+                            <tbody>
+                                <?php while ($r = mysqli_fetch_assoc($data)): ?>
+                                    <tr>
+                                        <td><?= $no++; ?></td>
 
-                                    <td>
-                                        <?= htmlspecialchars($r['tingkat']); ?>
-                                    </td>
+                                        <td>
+                                            <?= htmlspecialchars($r['nama']); ?>
+                                        </td>
 
-                                    <td>
-                                        <?= htmlspecialchars($r['jurusan']); ?>
-                                    </td>
+                                        <td>
+                                            <?= htmlspecialchars($r['tingkat']); ?>
+                                        </td>
 
-                                    <td>
-                                        <span class="badge bg-<?= (
-                                            $r['status_aktif'] == 1 ||
-                                            $r['status_aktif'] == 'Aktif'
-                                        ) ? 'success' : 'secondary'; ?>">
-                                            <?= (
+                                        <td>
+                                            <?= htmlspecialchars($r['jurusan']); ?>
+                                        </td>
+
+                                        <td>
+                                            <span class="badge bg-<?= (
                                                 $r['status_aktif'] == 1 ||
                                                 $r['status_aktif'] == 'Aktif'
-                                            ) ? 'Aktif' : 'Tidak Aktif'; ?>
-                                        </span>
-                                    </td>
+                                            ) ? 'success' : 'secondary'; ?>">
+                                                <?= (
+                                                    $r['status_aktif'] == 1 ||
+                                                    $r['status_aktif'] == 'Aktif'
+                                                ) ? 'Aktif' : 'Tidak Aktif'; ?>
+                                            </span>
+                                        </td>
 
-                                    <td class="text-center text-nowrap">
-                                        <a href="?edit=<?= $r['id']; ?>"
-                                            class="btn btn-sm btn-warning">
-                                            Edit
-                                        </a>
+                                        <td class="text-center text-nowrap">
+                                            <a href="?edit=<?= $r['id']; ?>"
+                                                class="btn btn-sm btn-warning">
+                                                Edit
+                                            </a>
 
-                                        <a href="?hapus=<?= $r['id']; ?>"
-                                            class="btn btn-sm btn-danger"
-                                            onclick="return confirm('Hapus data kelas ini?')">
-                                            Hapus
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
+                                            <a href="?hapus=<?= $r['id']; ?>"
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Hapus data kelas ini?')">
+                                                Hapus
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
 
-                            <?php if (!$total): ?>
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted">
-                                        Data kelas tidak ditemukan.
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
+                                <?php if (!$total): ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">
+                                            Data kelas tidak ditemukan.
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <!-- PENCARIAN DAN PAGINATION ASLI -->
-                <form method="GET" class="d-flex justify-content-end mb-3">
-                    <input type="text" name="cari"
-                        class="form-control form-control-sm"
-                        style="max-width:250px"
-                        placeholder="Cari data..."
-                        value="<?= htmlspecialchars($_GET['cari'] ?? ''); ?>">
+                    <!-- PENCARIAN DAN PAGINATION ASLI -->
+                    <form method="GET" class="d-flex justify-content-end mb-3">
+                        <input type="text" name="cari"
+                            class="form-control form-control-sm"
+                            style="max-width:250px"
+                            placeholder="Cari data..."
+                            value="<?= htmlspecialchars($_GET['cari'] ?? ''); ?>">
 
-                    <button class="btn btn-primary btn-sm ms-2">
-                        Cari
-                    </button>
-                </form>
+                        <button class="btn btn-primary btn-sm ms-2">
+                            Cari
+                        </button>
+                    </form>
 
-                <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
-                    <small class="text-muted">
-                        Menampilkan <?= $total ? $offset + 1 : 0; ?>
-                        s.d. <?= min($offset + $limit, $total); ?>
-                        dari <?= $total; ?> data
-                    </small>
+                    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                        <small class="text-muted">
+                            Menampilkan <?= $total ? $offset + 1 : 0; ?>
+                            s.d. <?= min($offset + $limit, $total); ?>
+                            dari <?= $total; ?> data
+                        </small>
 
-                    <ul class="pagination pagination-sm mb-0">
-                        <li class="page-item <?= $h <= 1 ? 'disabled' : ''; ?>">
-                            <a class="page-link"
-                                href="?halaman=1&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
-                                Pertama
-                            </a>
-                        </li>
-
-                        <li class="page-item <?= $h <= 1 ? 'disabled' : ''; ?>">
-                            <a class="page-link"
-                                href="?halaman=<?= max(1, $h - 1); ?>&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
-                                Sebelumnya
-                            </a>
-                        </li>
-
-                        <?php for ($i = 1; $i <= $pages; $i++): ?>
-                            <li class="page-item <?= $h == $i ? 'active' : ''; ?>">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item <?= $h <= 1 ? 'disabled' : ''; ?>">
                                 <a class="page-link"
-                                    href="?halaman=<?= $i; ?>&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
-                                    <?= $i; ?>
+                                    href="?halaman=1&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
+                                    Pertama
                                 </a>
                             </li>
-                        <?php endfor; ?>
 
-                        <li class="page-item <?= $h >= $pages ? 'disabled' : ''; ?>">
-                            <a class="page-link"
-                                href="?halaman=<?= min($pages, $h + 1); ?>&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
-                                Berikutnya
-                            </a>
-                        </li>
+                            <li class="page-item <?= $h <= 1 ? 'disabled' : ''; ?>">
+                                <a class="page-link"
+                                    href="?halaman=<?= max(1, $h - 1); ?>&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
+                                    Sebelumnya
+                                </a>
+                            </li>
 
-                        <li class="page-item <?= $h >= $pages ? 'disabled' : ''; ?>">
-                            <a class="page-link"
-                                href="?halaman=<?= max(1, $pages); ?>&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
-                                Terakhir
-                            </a>
-                        </li>
-                    </ul>
+                            <?php for ($i = 1; $i <= $pages; $i++): ?>
+                                <li class="page-item <?= $h == $i ? 'active' : ''; ?>">
+                                    <a class="page-link"
+                                        href="?halaman=<?= $i; ?>&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
+                                        <?= $i; ?>
+                                    </a>
+                                </li>
+                            <?php endfor; ?>
+
+                            <li class="page-item <?= $h >= $pages ? 'disabled' : ''; ?>">
+                                <a class="page-link"
+                                    href="?halaman=<?= min($pages, $h + 1); ?>&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
+                                    Berikutnya
+                                </a>
+                            </li>
+
+                            <li class="page-item <?= $h >= $pages ? 'disabled' : ''; ?>">
+                                <a class="page-link"
+                                    href="?halaman=<?= max(1, $pages); ?>&cari=<?= urlencode($_GET['cari'] ?? ''); ?>">
+                                    Terakhir
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
+
+        <?php endif; ?>
 
     </div>
 
