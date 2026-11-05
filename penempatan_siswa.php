@@ -315,11 +315,7 @@ function e($value) {
 
                 <hr>
 
-                <a href="penempatan_siswa.php?<?= e(http_build_query(array_merge($_GET, ['action' => 'print']))); ?>"
-                   target="_blank" class="btn btn-dark btn-sm">
-                   Cetak / Print
-                </a>
-            </div>
+             
         </div>
 
         <!-- TABEL DATA PENEMPATAN SISWA -->

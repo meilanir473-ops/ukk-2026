@@ -69,7 +69,7 @@ $query = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran_siswa ORDER BY id D
 <!-- KONTEN UTAMA -->
 <div class="main">
     <h3 class="fw-bold mb-3">Kelola Tindakan & Sanksi Siswa</h3>
-    <a href="dashboard.php" class="btn btn-secondary mb-4">Kembali ke Dashboard</a>
+   <hr>
 
     <?php if (isset($_GET['msg'])): ?>
         <div class="alert alert-<?= $_GET['msg'] === 'sukses' ? 'success' : 'warning'; ?> py-2">

@@ -287,3 +287,8 @@ $(document).ready(function () {
 
 </body>
 </html>
+----laporan = tambah cetak,filter
+
+Kelola  kelas kalo udah ada ga bisa tambah data yang sama
+
+nis,nip,nisn,kelas,tahun ajaran

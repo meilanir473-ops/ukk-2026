@@ -101,7 +101,7 @@ if ($role === 'admin') {
         <!-- Konten Utama Laporan -->
         <div class="col-md-9 col-lg-10 main-content">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Halaman Laporan Pelanggaran Siswa</h2>
+                <h2> Laporan Pelanggaran Siswa</h2>
                 <span class="badge bg-secondary">Login sebagai: <?= htmlspecialchars($nama_user); ?> (<?= ucfirst($role); ?>)</span>
             </div>
 
@@ -109,6 +109,7 @@ if ($role === 'admin') {
                 <div class="alert alert-info">
                     Menampilkan laporan khusus kelas binaan Anda: <strong><?= htmlspecialchars($nama_kelas_binaan); ?></strong>
                 </div>
+                
             <?php endif; ?>
 
             <div class="card shadow-sm">

@@ -10,25 +10,54 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$role = $_SESSION['role'];
-$nama = $_SESSION['name'] ?? ($_SESSION['nama'] ?? 'Pengguna');
+$role  = strtolower($_SESSION['role'] ?? '');
+$nama  = $_SESSION['name'] ?? ($_SESSION['nama'] ?? 'Pengguna');
+$user_id = $_SESSION['user_id'] ?? 0;
+
+if (!in_array($role, ['admin', 'guru'])) {
+    header("Location: login.php");
+    exit();
+}
 
 // Menyesuaikan koneksi dari koneksi.php
 $db = isset($conn) ? $conn : $koneksi;
+
+// OTOMATIS CEK APAKAH GURU INI ADALAH WALI KELAS
+$is_wk = false;
+if ($role === 'guru') {
+    // Cari id guru berdasarkan user_id di t_guru
+    $q_g = mysqli_query($db, "SELECT id FROM t_guru WHERE user_id = '$user_id' LIMIT 1");
+    if ($q_g && mysqli_num_rows($q_g) > 0) {
+        $d_g = mysqli_fetch_assoc($q_g);
+        $guru_id = $d_g['id'];
+
+        // Cek apakah guru_id tersebut terdaftar di t_wali_kelas (status_aktif = 1)
+        $q_wk = mysqli_query($db, "SELECT 1 FROM t_wali_kelas WHERE guru_id = '$guru_id' AND status_aktif = 1 LIMIT 1");
+        if ($q_wk && mysqli_num_rows($q_wk) > 0) {
+            $is_wk = true;
+        }
+    }
+}
+// Simpan status wali kelas ke session agar halaman lain bisa ikut mendeteksi
+$_SESSION['is_wali_kelas'] = $is_wk;
+
+// Menentukan Label Teks Akses untuk Ditampilkan
+if ($role === 'admin') {
+    $akses_teks = 'ADMIN';
+} elseif ($role === 'guru') {
+    $akses_teks = $is_wk ? 'WALI KELAS' : 'GURU';
+} else {
+    $akses_teks = strtoupper($role);
+}
 
 // Menghitung jumlah data dari database
 $query_siswa = mysqli_query($db, "SELECT COUNT(*) AS total FROM t_siswa");
 $query_guru  = mysqli_query($db, "SELECT COUNT(*) AS total FROM t_guru");
 $query_kelas = mysqli_query($db, "SELECT COUNT(*) AS total FROM t_kelas");
 
-$total_siswa = $query_siswa
-    ? (int) mysqli_fetch_assoc($query_siswa)['total'] : 0;
-
-$total_guru = $query_guru
-    ? (int) mysqli_fetch_assoc($query_guru)['total'] : 0;
-
-$total_kelas = $query_kelas
-    ? (int) mysqli_fetch_assoc($query_kelas)['total'] : 0;
+$total_siswa = $query_siswa ? (int) mysqli_fetch_assoc($query_siswa)['total'] : 0;
+$total_guru  = $query_guru ? (int) mysqli_fetch_assoc($query_guru)['total'] : 0;
+$total_kelas = $query_kelas ? (int) mysqli_fetch_assoc($query_kelas)['total'] : 0;
 ?>
 
 <!DOCTYPE html>
@@ -38,8 +67,7 @@ $total_kelas = $query_kelas
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
         body {
@@ -54,6 +82,8 @@ $total_kelas = $query_kelas
             width: 250px;
             top: 0;
             left: 0;
+            overflow-y: auto;
+            z-index: 1000;
         }
 
         .sidebar a {
@@ -61,6 +91,7 @@ $total_kelas = $query_kelas
             text-decoration: none;
             display: block;
             padding: 10px 20px;
+            border-radius: 5px;
         }
 
         .sidebar a:hover,
@@ -134,27 +165,14 @@ $total_kelas = $query_kelas
                 </li>
 
                 <li class="nav-item mb-1">
-                    <a href="kelola_kategori_pelanggaran.php">
-                        Kelola Kategori Pelanggaran
-                    </a>
-                </li>
-               <li class="nav-item mb-1">
-                    <a href="kelola_jenis_pelanggaran.php">
-                        Kelola Jenis Pelanggaran
-                    </a>
-                </li>
-                 </li>
-                  <li class="nav-item mb-1">
-                    <a href="laporan.php">Laporan</a>
+                    <a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a>
                 </li>
 
                 <li class="nav-item mb-1">
-                    <a href="about_me.php">About Me</a>
-               
+                    <a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a>
+                </li>
 
-            <?php endif; ?>
-
-            <?php if ($role === 'guru'): ?>
+            <?php elseif ($role === 'guru'): ?>
 
                 <li class="nav-item mb-1">
                     <a href="catat_pelanggaran.php">Catat Pelanggaran</a>
@@ -172,16 +190,23 @@ $total_kelas = $query_kelas
                     <a href="rekap_poin.php">Rekap Poin</a>
                 </li>
 
-                <li class="nav-item mb-1">
-                    <a href="about_me.php">About Me</a>
-                </li>
-
             <?php endif; ?>
+
+            <!-- Menu Laporan: Hanya tampil jika user adalah Admin atau Wali Kelas -->
+            <?php if ($role === 'admin' || $is_wk === true): ?>
+                <li class="nav-item mb-1">
+                    <a href="laporan.php">Laporan</a>
+                </li>
+            <?php endif; ?>
+
+            <li class="nav-item mb-1">
+                <a href="about_me.php">About Me</a>
+            </li>
 
         </ul>
 
         <hr>
-        <a href="logout.php" class="text-danger">Logout</a>
+        <a href="logout.php" class="text-danger" onclick="return confirm('Yakin ingin keluar?')">Logout</a>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -194,7 +219,7 @@ $total_kelas = $query_kelas
             <strong><?= htmlspecialchars($nama); ?></strong>
             |
             Akses:
-            <strong><?= strtoupper(htmlspecialchars($role)); ?></strong>
+            <strong><?= $akses_teks; ?></strong>
         </p>
 
         <hr>

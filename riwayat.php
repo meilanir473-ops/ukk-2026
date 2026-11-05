@@ -55,7 +55,7 @@ $query = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran_siswa ORDER BY tang
 <!-- KONTEN UTAMA -->
 <div class="main">
     <h3 class="fw-bold mb-3">Riwayat Pelanggaran Siswa</h3>
-    <a href="dashboard.php" class="btn btn-secondary mb-4">Kembali ke Dashboard</a>
+   <hr>
 
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-dark text-white">Daftar Riwayat Pelanggaran</div>
