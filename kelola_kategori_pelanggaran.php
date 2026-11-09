@@ -136,13 +136,6 @@ $data = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran_kategori");
     <h2>Kelola Kategori Pelanggaran</h2>
     <hr>
 
-    <!-- Tombol Tambah Data -->
-    <div class="mb-3">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalKategori">
-            + Tambah Kategori Pelanggaran
-        </button>
-    </div>
-
     <!-- MODAL FORM (TAMBAH / EDIT) -->
     <div class="modal fade" id="modalKategori" tabindex="-1" aria-labelledby="modalKategoriLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -187,6 +180,14 @@ $data = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran_kategori");
                 </form>
             </div>
         </div>
+    </div>
+
+    <!-- HEADER TABEL & TOMBOL TAMBAH DI SEBELAH KANAN -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">Data Kategori Pelanggaran</h5>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalKategori">
+            + Tambah Kategori Pelanggaran
+        </button>
     </div>
 
     <!-- TABEL DATA -->
@@ -248,7 +249,7 @@ $(document).ready(function () {
         ],
         language: {
             search: "Cari:",
-            lengthMenu: "Tampilkan _MENU_ data",
+            lengthMenu: "Tampilkan 10 data",
             info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
             infoEmpty: "Tidak ada data",
             zeroRecords: "Data tidak ditemukan",

@@ -289,7 +289,7 @@ $(document).ready(function () {
         ],
         language: {
             search: "Cari data:",
-            lengthMenu: "Tampilkan _MENU_ data",
+            lengthMenu: "Tampilkan 10 data",
             info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
             infoEmpty: "Tidak ada data",
             infoFiltered: "(difilter dari _MAX_ data)",

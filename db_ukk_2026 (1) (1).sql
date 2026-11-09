@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 04 Nov 2026 pada 04.46
--- Versi server: 10.4.27-MariaDB
--- Versi PHP: 8.0.25
+-- Waktu pembuatan: 09 Nov 2026 pada 05.53
+-- Versi server: 10.4.32-MariaDB
+-- Versi PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -306,7 +306,8 @@ CREATE TABLE `t_pelanggaran_siswa` (
 --
 
 INSERT INTO `t_pelanggaran_siswa` (`id`, `tahun_ajaran_id`, `siswa_id`, `nama_siswa`, `kelas_id`, `nama_kelas`, `pelanggaran_id`, `nama_pelanggaran`, `pelanggaran_kategori_id`, `guru_id`, `nama_guru`, `tanggal`, `keterangan`, `poin`, `tindakan`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'JUNITA PUTRI NUR RAHMAN', 33, 'XII RPL 2', 1, 'Terlambat hadir di sekolah', 1, 32, 'Aldi Maulana, S.Pd', '2026-11-04', 'Terlambat masuk gerbang sekolah', 10, 'Peringatan lisan', 'Pending', '2026-11-04 02:46:52', '2026-11-04 02:46:52');
+(2, 1, 4, 'ARADEA KANDI', 33, 'XII RPL 2', 5, 'Seragam tidak sesuai ketentuan / jadwal', 2, 1, 'Wawan Kurniawan, S.Pd.I', '2026-11-19', '-', 15, '-', 'Proses', '2026-11-09 03:47:28', '2026-11-09 03:48:11'),
+(3, 1, 2, 'AGNIA ROSYA NOERILLAH', 33, 'XII RPL 2', 8, 'Alpha (Tidak masuk tanpa keterangan)', 3, 1, 'Wawan Kurniawan, S.Pd.I', '2026-11-13', '-', 20, '-', 'Pending', '2026-11-09 03:52:28', NULL);
 
 -- --------------------------------------------------------
 
@@ -357,7 +358,31 @@ INSERT INTO `t_siswa` (`id`, `nis`, `nisn`, `nama`, `jenis_kelamin`, `tanggal_la
 (23, '102410565', '0085000023', 'SHERLY SATRIANI', 'P', '2008-10-04', 'Tasikmalaya', 1, '2026-11-03 02:51:02', '2026-11-03 02:51:02'),
 (24, '102410566', '0085000024', 'SOFI NURJANAH', 'P', '2008-11-11', 'Tasikmalaya', 1, '2026-11-03 02:51:02', '2026-11-03 02:51:02'),
 (25, '102410567', '0085000025', 'SURAIYA SALSABILA AZZAHRA', 'P', '2008-12-20', 'Tasikmalaya', 1, '2026-11-03 02:51:02', '2026-11-03 02:51:02'),
-(26, '102410568', '0085000026', 'TONI ANTONIO', 'L', '2008-02-14', 'Tasikmalaya', 1, '2026-11-03 02:51:02', '2026-11-03 02:51:02');
+(26, '102410568', '0085000026', 'TONI ANTONIO', 'L', '2008-02-14', 'Tasikmalaya', 1, '2026-11-03 02:51:02', '2026-11-03 02:51:02'),
+(55, '102410520', '0081234501', 'ALFIN RAHADIAN', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(56, '102410521', '0081234502', 'ALISA RAMADHANI', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(57, '102410522', '0081234503', 'ALMA AURA LIVIA', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(58, '102410523', '0081234504', 'ANIS KHOERUNNISA NUR RAMADANI', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(59, '102410524', '0081234505', 'AZMIL AMIRA', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(60, '102410525', '0081234506', 'AZRIL AKBAR FAWWAZ ABDILLAH', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(61, '102410527', '0081234507', 'ERLANGGA SAPUTRA HIDAYAT', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(62, '102410528', '0081234508', 'HILMA HUMMA TUNNAJAH', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(63, '102410529', '0081234509', 'ILMA NAJYA', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(64, '102410531', '0081234510', 'JULIANDA DHARMA PANGESTU', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(65, '102410532', '0081234511', 'KAYILA NUR FADILAH', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(66, '102410533', '0081234512', 'MOZA DINA NABILLAH', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(67, '102410534', '0081234513', 'MUHAMAD ALFARIZI', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(68, '102410535', '0081234514', 'MUHAMAD FAHRIN ADAM', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(69, '102410536', '0081234515', 'MUHAMMAD ZIDANE MAULIDAN', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(70, '102410537', '0081234516', 'MUHAMMAD ZULFAN NURALFANSYAH', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(71, '102410538', '0081234517', 'NATIYA NUR AZKIYA', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(72, '102410539', '0081234518', 'NOVITA PUSPITASARI', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(73, '102410540', '0081234519', 'NUCKY ANDREAS FEBRIAN', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(74, '102410743', '0081234520', 'RADITYA JETI PRASETYA', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(75, '102410541', '0081234521', 'RANGGA RAMADIYANTO NURHAKIM', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(76, '102410542', '0081234522', 'RISQI MUHAMAD IHWANI', 'L', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(77, '102410753', '0081234523', 'SALWA SABILATUL BARKAH', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32'),
+(78, '102410543', '0081234524', 'TAZKIA ZAHRA', 'P', '2008-01-01', 'Tasikmalaya', 1, '2026-11-09 04:50:32', '2026-11-09 04:50:32');
 
 -- --------------------------------------------------------
 
@@ -604,13 +629,13 @@ ALTER TABLE `t_pelanggaran_kategori`
 -- AUTO_INCREMENT untuk tabel `t_pelanggaran_siswa`
 --
 ALTER TABLE `t_pelanggaran_siswa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `t_siswa`
 --
 ALTER TABLE `t_siswa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT untuk tabel `t_tahun_ajaran`
