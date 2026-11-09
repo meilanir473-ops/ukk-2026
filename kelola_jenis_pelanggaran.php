@@ -1,7 +1,8 @@
 <?php
 require_once 'koneksi.php';
+if (session_status() === PHP_SESSION_NONE) session_start();
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header("Location: login.php");
     exit();
 }
@@ -10,6 +11,7 @@ function e($value) {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
+// 1. PROSES SIMPAN (TAMBAH / EDIT)
 if (isset($_POST['simpan'])) {
     $id = (int)($_POST['id'] ?? 0);
     $kategori_id = (int)($_POST['pelanggaran_kategori_id'] ?? 0);
@@ -33,6 +35,7 @@ if (isset($_POST['simpan'])) {
     exit();
 }
 
+// 2. PROSES HAPUS
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
     mysqli_query($koneksi, "DELETE FROM t_pelanggaran WHERE id=$id");
@@ -40,30 +43,34 @@ if (isset($_GET['hapus'])) {
     exit();
 }
 
-$edit = [
-    'id'=>'', 'pelanggaran_kategori_id'=>'',
-    'kode'=>'', 'nama'=>'', 'poin'=>'', 'deskripsi'=>''
-];
+// AMBIL DATA UNTUK EDIT ATAU KONDISI TAMBAH
+$aksi = $_GET['aksi'] ?? '';
+$edit_id = (int)($_GET['edit'] ?? 0);
+$edit = null;
 
-if (isset($_GET['edit'])) {
-    $id = (int)$_GET['edit'];
-    $hasil = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran WHERE id=$id");
-
+if ($edit_id > 0) {
+    $hasil = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran WHERE id=$edit_id");
     if ($hasil && mysqli_num_rows($hasil) > 0) {
         $edit = mysqli_fetch_assoc($hasil);
     }
 }
 
+// AMBIL LIST KATEGORI UNTUK DROPDOWN
 $listKategori = mysqli_query($koneksi,
     "SELECT id, nama FROM t_pelanggaran_kategori
      WHERE status_aktif=1 ORDER BY nama ASC");
 
+// AMBIL SEMUA DATA JENIS PELANGGARAN
 $data = mysqli_query($koneksi,
     "SELECT p.*, k.nama AS nama_kategori
      FROM t_pelanggaran p
      LEFT JOIN t_pelanggaran_kategori k
      ON p.pelanggaran_kategori_id=k.id
      ORDER BY p.id DESC");
+
+if (!$data) {
+    die("Gagal mengambil data jenis pelanggaran: " . htmlspecialchars(mysqli_error($koneksi)));
+}
 ?>
 
 <!DOCTYPE html>
@@ -135,9 +142,8 @@ $data = mysqli_query($koneksi,
         <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
         <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
         <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php" class="active">Kelola Jenis Pelanggaran</a></li>
-         <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
+        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
-       
     </ul>
 
     <hr>
@@ -146,109 +152,124 @@ $data = mysqli_query($koneksi,
 
 <!-- KONTEN UTAMA -->
 <div class="main-content">
-    <h2 class="mb-3">Kelola Jenis Pelanggaran</h2>
+    <h2 class="mb-3">
+        <?= $edit ? 'Edit Jenis Pelanggaran' : ($aksi === 'tambah' ? 'Tambah Jenis Pelanggaran' : 'Kelola Jenis Pelanggaran'); ?>
+    </h2>
     <hr>
-    <!-- FORM TAMBAH / EDIT -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <?= !empty($edit['id']) ? 'Edit Jenis Pelanggaran' : 'Tambah Jenis Pelanggaran'; ?>
-        </div>
-        <div class="card-body">
-            <form method="POST" action="kelola_jenis_pelanggaran.php">
-                <input type="hidden" name="id" value="<?= e($edit['id']); ?>">
 
-                <div class="mb-3">
-                    <label class="form-label">Kategori Pelanggaran:</label>
-                    <select name="pelanggaran_kategori_id" class="form-select" required>
-                        <option value="">-- Pilih Kategori --</option>
-                        <?php if ($listKategori): while ($k = mysqli_fetch_assoc($listKategori)): ?>
-                            <option value="<?= (int)$k['id']; ?>"
-                                <?= $edit['pelanggaran_kategori_id'] == $k['id'] ? 'selected' : ''; ?>>
-                                <?= e($k['nama']); ?>
-                            </option>
-                        <?php endwhile; endif; ?>
-                    </select>
-                </div>
+    <?php if ($aksi === 'tambah' || $edit): ?>
+        <!-- FORM TAMBAH / EDIT -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <?= $edit ? 'Edit Jenis Pelanggaran' : 'Tambah Jenis Pelanggaran'; ?>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="kelola_jenis_pelanggaran.php">
+                    <input type="hidden" name="id" value="<?= e($edit['id'] ?? ''); ?>">
 
-                <div class="mb-3">
-                    <label class="form-label">Kode:</label>
-                    <input type="text" name="kode" class="form-control"
-                           placeholder="Contoh: PLG-001" value="<?= e($edit['kode']); ?>" required>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kategori Pelanggaran:</label>
+                        <select name="pelanggaran_kategori_id" class="form-select" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            <?php if ($listKategori): while ($k = mysqli_fetch_assoc($listKategori)): ?>
+                                <option value="<?= (int)$k['id']; ?>"
+                                    <?= (($edit['pelanggaran_kategori_id'] ?? '') == $k['id']) ? 'selected' : ''; ?>>
+                                    <?= e($k['nama']); ?>
+                                </option>
+                            <?php endwhile; endif; ?>
+                        </select>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Nama Jenis Pelanggaran:</label>
-                    <input type="text" name="nama" class="form-control"
-                           value="<?= e($edit['nama']); ?>" required>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kode:</label>
+                        <input type="text" name="kode" class="form-control"
+                               placeholder="Contoh: PLG-001" value="<?= e($edit['kode'] ?? ''); ?>" required>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Poin:</label>
-                    <input type="number" name="poin" class="form-control"
-                           min="0" value="<?= e($edit['poin']); ?>" required>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nama Jenis Pelanggaran:</label>
+                        <input type="text" name="nama" class="form-control"
+                               value="<?= e($edit['nama'] ?? ''); ?>" required>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Deskripsi / Keterangan:</label>
-                    <textarea name="deskripsi" class="form-control" rows="2"><?= e($edit['deskripsi']); ?></textarea>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Poin:</label>
+                        <input type="number" name="poin" class="form-control"
+                               min="0" value="<?= e($edit['poin'] ?? ''); ?>" required>
+                    </div>
 
-                <button type="submit" name="simpan" class="btn btn-primary">
-                    <?= !empty($edit['id']) ? 'Update Data' : 'Simpan'; ?>
-                </button>
+                    <div class="mb-3">
+                        <label class="form-label">Deskripsi / Keterangan:</label>
+                        <textarea name="deskripsi" class="form-control" rows="2"><?= e($edit['deskripsi'] ?? ''); ?></textarea>
+                    </div>
 
-                <?php if (!empty($edit['id'])): ?>
+                    <button type="submit" name="simpan" class="btn btn-primary">
+                        <?= $edit ? 'Update Data' : 'Simpan'; ?>
+                    </button>
+
                     <a href="kelola_jenis_pelanggaran.php" class="btn btn-secondary">Batal</a>
-                <?php endif; ?>
-            </form>
-        </div>
-    </div>
-
-    <!-- TABEL DATA -->
-    <div class="card shadow-sm">
-        <div class="card-header bg-dark text-white">Data Jenis Pelanggaran</div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table id="tabelPelanggaran"
-                       class="table table-bordered table-striped table-hover align-middle w-100">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>No</th>
-                            <th>Kode</th>
-                            <th>Kategori</th>
-                            <th>Nama Pelanggaran</th>
-                            <th>Poin</th>
-                            <th>Deskripsi</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if ($data && mysqli_num_rows($data) > 0): ?>
-                        <?php $no=1; while ($r = mysqli_fetch_assoc($data)): ?>
-                            <tr>
-                                <td><?= $no++; ?></td>
-                                <td><?= e($r['kode']); ?></td>
-                                <td><?= e($r['nama_kategori'] ?? '-'); ?></td>
-                                <td><?= e($r['nama']); ?></td>
-                                <td><span class="badge bg-danger"><?= (int)$r['poin']; ?></span></td>
-                                <td><?= $r['deskripsi'] ? e($r['deskripsi']) : '-'; ?></td>
-                                <td class="text-nowrap">
-                                    <a href="kelola_jenis_pelanggaran.php?edit=<?= (int)$r['id']; ?>"
-                                       class="btn btn-sm btn-warning">Edit</a>
-                                    <a href="kelola_jenis_pelanggaran.php?hapus=<?= (int)$r['id']; ?>"
-                                       class="btn btn-sm btn-danger"
-                                       onclick="return confirm('Yakin ingin menghapus jenis pelanggaran ini?')">
-                                        Hapus
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
+                </form>
             </div>
         </div>
-    </div>
+
+    <?php else: ?>
+
+        <!-- TOMBOL TAMBAH DATA JENIS PELANGGARAN -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Data Jenis Pelanggaran</h5>
+            <a href="kelola_jenis_pelanggaran.php?aksi=tambah" class="btn btn-primary">
+                + Tambah Jenis Pelanggaran
+            </a>
+        </div>
+
+        <!-- TABEL DATA -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">Data Jenis Pelanggaran</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="tabelPelanggaran"
+                           class="table table-bordered table-striped table-hover align-middle w-100">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>No</th>
+                                <th>Kode</th>
+                                <th>Kategori</th>
+                                <th>Nama Pelanggaran</th>
+                                <th>Poin</th>
+                                <th>Deskripsi</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if ($data && mysqli_num_rows($data) > 0): ?>
+                            <?php $no=1; while ($r = mysqli_fetch_assoc($data)): ?>
+                                <tr>
+                                    <td><?= $no++; ?></td>
+                                    <td><?= e($r['kode']); ?></td>
+                                    <td><?= e($r['nama_kategori'] ?? '-'); ?></td>
+                                    <td><?= e($r['nama']); ?></td>
+                                    <td><span class="badge bg-danger"><?= (int)$r['poin']; ?></span></td>
+                                    <td><?= !empty($r['deskripsi']) ? e($r['deskripsi']) : '-'; ?></td>
+                                    <td class="text-nowrap">
+                                        <a href="kelola_jenis_pelanggaran.php?edit=<?= (int)$r['id']; ?>"
+                                           class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="kelola_jenis_pelanggaran.php?hapus=<?= (int)$r['id']; ?>"
+                                           class="btn btn-sm btn-danger"
+                                           onclick="return confirm('Yakin ingin menghapus jenis pelanggaran ini?')">
+                                            Hapus
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    <?php endif; ?>
+
 </div>
 
 <!-- JAVASCRIPT DATATABLES -->
@@ -287,8 +308,3 @@ $(document).ready(function () {
 
 </body>
 </html>
-----laporan = tambah cetak,filter
-
-Kelola  kelas kalo udah ada ga bisa tambah data yang sama
-
-nis,nip,nisn,kelas,tahun ajaran

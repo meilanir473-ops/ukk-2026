@@ -8,6 +8,7 @@ if (!($conn instanceof mysqli)) die("Koneksi database tidak tersedia.");
 $role = $_SESSION['role'] ?? '';
 $is_wk = $_SESSION['is_wali_kelas'] ?? false;
 
+// Perubahan dilakukan di sini dengan menambahkan HAVING jumlah_pelanggaran > 0
 $sql = "SELECT s.id AS siswa_id, s.nis, s.nama AS nama_siswa, k.nama AS nama_kelas,
         COUNT(ps.id) AS jumlah_pelanggaran, COALESCE(SUM(ps.poin), 0) AS total_poin
         FROM t_siswa AS s
@@ -15,6 +16,7 @@ $sql = "SELECT s.id AS siswa_id, s.nis, s.nama AS nama_siswa, k.nama AS nama_kel
         LEFT JOIN t_kelas AS k ON k.id = ks.kelas_id
         LEFT JOIN t_pelanggaran_siswa AS ps ON ps.siswa_id = s.id
         GROUP BY s.id, s.nis, s.nama, k.nama
+        HAVING jumlah_pelanggaran > 0
         ORDER BY total_poin DESC, s.nama ASC";
 
 $result = mysqli_query($conn, $sql);

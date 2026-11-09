@@ -1,4 +1,3 @@
-
 <?php
 require_once 'koneksi.php';
 
@@ -40,6 +39,7 @@ if (isset($_GET['hapus'])) {
 }
 
 $edit = ['id'=>'', 'nama'=>'', 'deskripsi'=>'', 'status_aktif'=>1];
+$isEdit = false;
 
 if (isset($_GET['edit'])) {
     $id = (int)$_GET['edit'];
@@ -47,6 +47,7 @@ if (isset($_GET['edit'])) {
         "SELECT * FROM t_pelanggaran_kategori WHERE id='$id'");
     if ($resultEdit && mysqli_num_rows($resultEdit) > 0) {
         $edit = mysqli_fetch_assoc($resultEdit);
+        $isEdit = true;
     }
 }
 
@@ -124,9 +125,8 @@ $data = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran_kategori");
         <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
         <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php" class="active">Kelola Kategori Pelanggaran</a></li>
         <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
-         <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
+        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
-        
     </ul>
     <hr>
     <a href="logout.php" class="text-danger">Logout</a>
@@ -134,45 +134,62 @@ $data = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran_kategori");
 
 <div class="main-content">
     <h2>Kelola Kategori Pelanggaran</h2>
-        <hr>
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form method="POST">
-                <input type="hidden" name="id" value="<?= e($edit['id']); ?>">
+    <hr>
 
-                <div class="mb-3">
-                    <label class="form-label">Nama Kategori:</label>
-                    <input type="text" name="nama" class="form-control"
-                           value="<?= e($edit['nama']); ?>" required>
-                </div>
+    <!-- Tombol Tambah Data -->
+    <div class="mb-3">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalKategori">
+            + Tambah Kategori Pelanggaran
+        </button>
+    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Deskripsi:</label>
-                    <textarea name="deskripsi" class="form-control"
-                              rows="3"><?= e($edit['deskripsi']); ?></textarea>
-                </div>
+    <!-- MODAL FORM (TAMBAH / EDIT) -->
+    <div class="modal fade" id="modalKategori" tabindex="-1" aria-labelledby="modalKategoriLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalKategoriLabel"><?= $isEdit ? 'Edit Kategori Pelanggaran' : 'Tambah Kategori Pelanggaran'; ?></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id" value="<?= e($edit['id']); ?>">
 
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox"
-                           name="status_aktif" id="status_aktif" value="1"
-                           <?= $edit['status_aktif'] == 1 ? 'checked' : ''; ?>>
-                    <label class="form-check-label" for="status_aktif">
-                        Status Aktif
-                    </label>
-                </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Kategori:</label>
+                            <input type="text" name="nama" class="form-control"
+                                   value="<?= e($edit['nama']); ?>" required>
+                        </div>
 
-                <button type="submit" name="simpan" class="btn btn-primary">
-                    Simpan
-                </button>
+                        <div class="mb-3">
+                            <label class="form-label">Deskripsi:</label>
+                            <textarea name="deskripsi" class="form-control"
+                                      rows="3"><?= e($edit['deskripsi']); ?></textarea>
+                        </div>
 
-                <?php if ($edit['id']): ?>
-                    <a href="kelola_kategori_pelanggaran.php"
-                       class="btn btn-secondary">Batal</a>
-                <?php endif; ?>
-            </form>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox"
+                                   name="status_aktif" id="status_aktif" value="1"
+                                   <?= $edit['status_aktif'] == 1 ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="status_aktif">
+                                Status Aktif
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <?php if ($isEdit): ?>
+                            <a href="kelola_kategori_pelanggaran.php" class="btn btn-secondary">Batal</a>
+                        <?php else: ?>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                        <?php endif; ?>
+                        <button type="submit" name="simpan" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
+    <!-- TABEL DATA -->
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <div class="table-responsive">
@@ -218,9 +235,11 @@ $data = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran_kategori");
 </div>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.1.8/js/dataTables.min.js"></script>
 <script>
 $(document).ready(function () {
+    // Inisialisasi DataTables
     new DataTable('#tabelKategori', {
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
@@ -242,6 +261,12 @@ $(document).ready(function () {
             }
         }
     });
+
+    // Jika sedang dalam mode edit, otomatis buka modalnya
+    <?php if ($isEdit): ?>
+        var myModal = new bootstrap.Modal(document.getElementById('modalKategori'));
+        myModal.show();
+    <?php endif; ?>
 });
 </script>
 

@@ -1,4 +1,3 @@
-
 <?php
 require_once 'koneksi.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
@@ -67,24 +66,12 @@ $edit = $edit_id
     ? mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT * FROM t_siswa WHERE id=$edit_id"))
     : null;
 
-// PENCARIAN DAN PAGINATION
-$limit = 10;
-$h = max(1, (int)($_GET['halaman'] ?? 1));
-$cari = mysqli_real_escape_string($koneksi, $_GET['cari'] ?? '');
-$where = $cari
-    ? "WHERE nis LIKE '%$cari%' OR nisn LIKE '%$cari%' OR nama LIKE '%$cari%'"
-    : "";
-
-$total = mysqli_num_rows(mysqli_query($koneksi, "SELECT id FROM t_siswa $where"));
-$pages = max(1, ceil($total / $limit));
-$h = min($h, $pages);
-$offset = ($h - 1) * $limit;
-
-$data = mysqli_query(
-    $koneksi,
-    "SELECT * FROM t_siswa $where ORDER BY nama LIMIT $offset,$limit"
-);
-$no = $offset + 1;
+// AMBIL SEMUA DATA SISWA (Tanpa manual limit karena sudah dihandle oleh DataTables)
+$data = mysqli_query($koneksi, "SELECT * FROM t_siswa ORDER BY nama ASC");
+if (!$data) {
+    die("Gagal mengambil data siswa: " . htmlspecialchars(mysqli_error($koneksi)));
+}
+$no = 1;
 ?>
 
 <!DOCTYPE html>
@@ -94,7 +81,10 @@ $no = $offset + 1;
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Kelola Siswa</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
     <style>
         body {
@@ -142,12 +132,6 @@ $no = $offset + 1;
             padding: 10px 15px;
         }
 
-        .table thead th {
-            background: #212529;
-            color: white;
-            white-space: nowrap;
-        }
-
         @media (max-width: 767.98px) {
             .sidebar {
                 position: relative;
@@ -166,70 +150,34 @@ $no = $offset + 1;
 <body>
 
 <!-- SIDEBAR -->
-<!-- SIDEBAR -->
 <div class="sidebar d-flex flex-column p-3">
-
     <h4 class="text-white mb-4">Pelanggaran Siswa</h4>
 
     <ul class="nav nav-pills flex-column mb-auto">
-        <li class="nav-item mb-1">
-            <a href="dashboard.php">Dashboard</a>
-        </li>
-
-        <li class="nav-item mb-1">
-            <a href="kelola_guru.php">Kelola Guru</a>
-        </li>
-
-        <li class="nav-item mb-1">
-            <a href="kelola_siswa.php" class="active">Kelola Siswa</a>
-        </li>
-
-        <li class="nav-item mb-1">
-            <a href="kelola_kelas.php">Kelola Kelas</a>
-        </li>
-
-        <li class="nav-item mb-1">
-            <a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a>
-        </li>
-
-        <li class="nav-item mb-1">
-            <a href="penempatan_siswa.php">Penempatan Siswa</a>
-        </li>
-
-        <li class="nav-item mb-1">
-            <a href="kelola_wali_kelas.php">Kelola Wali Kelas</a>
-        </li>
-
-        <li class="nav-item mb-1">
-            <a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a>
-        </li>
-
-        <li class="nav-item mb-1">
-            <a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a>
-        </li>
-             <li class="nav-item mb-1">
-            <a href="laporan.php">Laporan</a>
-        </li>
-    
-
-        <li class="nav-item mb-1">
-            <a href="about_me.php">About Me</a>
-        </li>
-
+        <li class="nav-item mb-1"><a href="dashboard.php">Dashboard</a></li>
+        <li class="nav-item mb-1"><a href="kelola_guru.php">Kelola Guru</a></li>
+        <li class="nav-item mb-1"><a href="kelola_siswa.php" class="active">Kelola Siswa</a></li>
+        <li class="nav-item mb-1"><a href="kelola_kelas.php">Kelola Kelas</a></li>
+        <li class="nav-item mb-1"><a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a></li>
+        <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
+        <li class="nav-item mb-1"><a href="kelola_wali_kelas.php">Kelola Wali Kelas</a></li>
+        <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
+        <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
+        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
+        <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
     </ul>
 
-    <!-- LOGOUT DI BAWAH -->
-     <hr>
+    <hr>
     <div class="logout">
         <a href="logout.php" class="text-danger">Logout</a>
     </div>
-
 </div>
+
 <!-- KONTEN UTAMA -->
 <div class="main-content">
 
     <h2 class="mb-3">
-        <?= $edit ? 'Edit Data Siswa' : 'Kelola Siswa' ?>
+        <?= $edit ? 'Edit Data Siswa' : ($aksi === 'tambah' ? 'Tambah Data Siswa' : 'Kelola Siswa'); ?>
     </h2>
     <hr>
 
@@ -249,11 +197,10 @@ $no = $offset + 1;
 
             <div class="card-body">
                 <form method="POST">
-                    <input type="hidden" name="id"
-                           value="<?= $edit['id'] ?? '' ?>">
+                    <input type="hidden" name="id" value="<?= $edit['id'] ?? '' ?>">
 
                     <div class="mb-3">
-                        <label class="form-label">NIS </label>
+                        <label class="form-label">NIS</label>
                         <input type="text" name="nis"
                                class="form-control"
                                maxlength="8"
@@ -263,7 +210,7 @@ $no = $offset + 1;
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">NISN </label>
+                        <label class="form-label">NISN</label>
                         <input type="text" name="nisn"
                                class="form-control"
                                maxlength="10"
@@ -281,14 +228,11 @@ $no = $offset + 1;
 
                     <div class="mb-3">
                         <label class="form-label">Jenis Kelamin</label>
-                        <select name="jenis_kelamin"
-                                class="form-select" required>
-                            <option value="L"
-                                <?= ($edit['jenis_kelamin'] ?? '') == 'L' ? 'selected' : '' ?>>
+                        <select name="jenis_kelamin" class="form-select" required>
+                            <option value="L" <?= ($edit['jenis_kelamin'] ?? '') == 'L' ? 'selected' : '' ?>>
                                 Laki-laki
                             </option>
-                            <option value="P"
-                                <?= ($edit['jenis_kelamin'] ?? '') == 'P' ? 'selected' : '' ?>>
+                            <option value="P" <?= ($edit['jenis_kelamin'] ?? '') == 'P' ? 'selected' : '' ?>>
                                 Perempuan
                             </option>
                         </select>
@@ -303,32 +247,26 @@ $no = $offset + 1;
 
                     <div class="mb-3">
                         <label class="form-label">Alamat</label>
-                        <textarea name="alamat" class="form-control"
-                                  rows="3"><?= htmlspecialchars($edit['alamat'] ?? '') ?></textarea>
+                        <textarea name="alamat" class="form-control" rows="3"><?= htmlspecialchars($edit['alamat'] ?? '') ?></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Status Aktif</label>
-                        <select name="status_aktif"
-                                class="form-select" required>
-                            <option value="Aktif"
-                                <?= ($edit['status_aktif'] ?? 1) == 1 ? 'selected' : '' ?>>
+                        <select name="status_aktif" class="form-select" required>
+                            <option value="Aktif" <?= (($edit['status_aktif'] ?? 1) == 1) ? 'selected' : '' ?>>
                                 Aktif
                             </option>
-                            <option value="Tidak Aktif"
-                                <?= ($edit['status_aktif'] ?? 1) == 0 ? 'selected' : '' ?>>
+                            <option value="Tidak Aktif" <?= (($edit['status_aktif'] ?? 1) == 0) ? 'selected' : '' ?>>
                                 Tidak Aktif
                             </option>
                         </select>
                     </div>
 
-                    <button type="submit" name="simpan"
-                            class="btn btn-primary">
-                        Simpan
+                    <button type="submit" name="simpan" class="btn btn-primary">
+                        <?= $edit ? 'Update Data' : 'Simpan'; ?>
                     </button>
 
-                    <a href="kelola_siswa.php"
-                       class="btn btn-secondary">
+                    <a href="kelola_siswa.php" class="btn btn-secondary">
                         Batal
                     </a>
                 </form>
@@ -340,7 +278,7 @@ $no = $offset + 1;
         <!-- DAFTAR DATA SISWA -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5>Data Siswa</h5>
-            <a href="?aksi=tambah" class="btn btn-primary">
+            <a href="kelola_siswa.php?aksi=tambah" class="btn btn-primary">
                 + Tambah Data Siswa
             </a>
         </div>
@@ -351,27 +289,9 @@ $no = $offset + 1;
             </div>
 
             <div class="card-body">
-
-                <div class="row mb-3 justify-content-between">
-                    <div class="col-auto">Tampilkan 10 data</div>
-
-                    <div class="col-auto">
-                        <form method="GET" class="d-flex gap-2">
-                            <input type="text" name="cari"
-                                   class="form-control form-control-sm"
-                                   placeholder="Cari data..."
-                                   value="<?= htmlspecialchars($_GET['cari'] ?? '') ?>">
-
-                            <button class="btn btn-primary btn-sm">
-                                Cari
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped align-middle">
-                        <thead>
+                    <table id="tabelSiswa" class="table table-bordered table-striped table-hover align-middle w-100">
+                        <thead class="table-dark">
                             <tr>
                                 <th>No</th>
                                 <th>NIS</th>
@@ -392,59 +312,31 @@ $no = $offset + 1;
                                     <td><?= htmlspecialchars($r['nisn'] ?? '') ?></td>
                                     <td><?= htmlspecialchars($r['nama']) ?></td>
                                     <td><?= htmlspecialchars($r['jenis_kelamin']) ?></td>
-                                    <td><?= htmlspecialchars($r['alamat'] ?? '') ?></td>
-
+                                    <td><?= htmlspecialchars($r['alamat'] ?? '-') ?></td>
                                     <td>
                                         <span class="badge bg-<?= $r['status_aktif'] == 1 ? 'success' : 'secondary' ?>">
                                             <?= $r['status_aktif'] == 1 ? 'Aktif' : 'Tidak Aktif' ?>
                                         </span>
                                     </td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <a href="kelola_siswa.php?edit=<?= $r['id'] ?>"
+                                               class="btn btn-warning btn-sm">
+                                                Edit
+                                            </a>
 
-                                    <td class="text-nowrap">
-                                        <a href="?edit=<?= $r['id'] ?>"
-                                           class="btn btn-warning btn-sm">
-                                            Edit
-                                        </a>
-
-                                        <a href="?hapus=<?= $r['id'] ?>"
-                                           class="btn btn-danger btn-sm"
-                                           onclick="return confirm('Hapus data siswa ini?')">
-                                            Hapus
-                                        </a>
+                                            <a href="kelola_siswa.php?hapus=<?= $r['id'] ?>"
+                                               class="btn btn-danger btn-sm"
+                                               onclick="return confirm('Yakin ingin menghapus data siswa ini?')">
+                                                Hapus
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
-
-                            <?php if (!$total): ?>
-                                <tr>
-                                    <td colspan="8" class="text-center">
-                                        Data siswa tidak ditemukan.
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
-
-                <!-- INFORMASI DAN PAGINATION -->
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <small>
-                        Menampilkan <?= $total ? $offset + 1 : 0 ?>–<?= min($offset + $limit, $total) ?>
-                        dari <?= $total ?> data
-                    </small>
-
-                    <ul class="pagination pagination-sm mb-0">
-                        <?php for ($i = 1; $i <= $pages; $i++): ?>
-                            <li class="page-item <?= $h == $i ? 'active' : '' ?>">
-                                <a class="page-link"
-                                   href="?halaman=<?= $i ?>&cari=<?= urlencode($_GET['cari'] ?? '') ?>">
-                                    <?= $i ?>
-                                </a>
-                            </li>
-                        <?php endfor; ?>
-                    </ul>
-                </div>
-
             </div>
         </div>
 
@@ -452,7 +344,44 @@ $no = $offset + 1;
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- JavaScript Dependencies -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- Inisialisasi DataTables -->
+<script>
+$(document).ready(function () {
+    $('#tabelSiswa').DataTable({
+        language: {
+            search: "Cari data:",
+            lengthMenu: "Tampilkan 10 data",
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data siswa",
+            infoEmpty: "Tidak ada data siswa",
+            infoFiltered: "(difilter dari _MAX_ total data)",
+            zeroRecords: "Data siswa tidak ditemukan",
+            emptyTable: "Belum ada data siswa",
+            paginate: {
+                first: "Pertama",
+                last: "Terakhir",
+                next: "Berikutnya",
+                previous: "Sebelumnya"
+            }
+        },
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50, 100],
+        order: [[3, 'asc']], // Urutkan berdasarkan kolom Nama Siswa
+        columnDefs: [
+            {
+                targets: [0, 7], // Kolom No dan Aksi tidak bisa di-sort dan search
+                orderable: false,
+                searchable: false
+            }
+        ]
+    });
+});
+</script>
 
 </body>
 </html>
