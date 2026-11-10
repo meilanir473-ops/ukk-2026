@@ -254,13 +254,7 @@ $(document).ready(function () {
             infoEmpty: "Tidak ada data",
             zeroRecords: "Data tidak ditemukan",
             emptyTable: "Belum ada kategori pelanggaran",
-            paginate: {
-                first: "Pertama",
-                last: "Terakhir",
-                next: "Berikutnya",
-                previous: "Sebelumnya"
-            }
-        }
+        
     });
 
     // Jika sedang dalam mode edit, otomatis buka modalnya

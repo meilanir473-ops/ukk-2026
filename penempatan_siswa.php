@@ -1,3 +1,4 @@
+
 <?php
 require_once 'koneksi.php';
 
@@ -140,6 +141,40 @@ if ($edit_id > 0) {
     ");
     $stmtEdit->execute([$edit_id]);
     $edit = $stmtEdit->fetch() ?: $edit;
+}
+
+// EXPORT EXCEL
+if ($action === 'excel') {
+    header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
+    header("Content-Disposition: attachment; filename=Penempatan_Siswa_" . date('Ymd') . ".xls");
+
+    echo "\xEF\xBB\xBF";
+    echo "<h3>Laporan Penempatan Siswa</h3>";
+    echo "<table border='1'>";
+    echo "<tr>
+        <th>No</th>
+        <th>Tahun Ajaran</th>
+        <th>NIS</th>
+        <th>Nama Siswa</th>
+        <th>L/P</th>
+        <th>Kelas</th>
+        <th>Status</th>
+    </tr>";
+
+    foreach ($data as $i => $r) {
+        echo "<tr>";
+        echo "<td>" . ($i + 1) . "</td>";
+        echo "<td>" . e($r['nama_tahun']) . "</td>";
+        echo "<td>'" . e($r['nis']) . "</td>";
+        echo "<td>" . e($r['nama_siswa']) . "</td>";
+        echo "<td>" . e($r['jenis_kelamin']) . "</td>";
+        echo "<td>" . e($r['nama_kelas']) . "</td>";
+        echo "<td>" . ($r['status_aktif'] == 1 ? 'Aktif' : 'Non-Aktif') . "</td>";
+        echo "</tr>";
+    }
+
+    echo "</table>";
+    exit;
 }
 
 // DATA DROPDOWN
@@ -357,9 +392,20 @@ $listSiswa = $pdo->query("
         <div class="card shadow-sm mb-4 no-print">
             <div class="card-body">
 
-                <!-- Tombol Tambah Penempatan di Kanan Atas -->
-                <div class="d-flex justify-content-end mb-3">
-                    <a href="penempatan_siswa.php?tambah=1" class="btn btn-primary">+ Tambah Penempatan</a>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a href="penempatan_siswa.php?tambah=1" class="btn btn-primary">
+                        + Tambah Penempatan
+                    </a>
+
+                    <a href="penempatan_siswa.php?<?= http_build_query(array_merge($_GET, ['action' => 'excel'])); ?>"
+                       class="btn btn-success">
+                        Export Excel
+                    </a>
+
+                    <a href="penempatan_siswa.php?<?= http_build_query(array_merge($_GET, ['action' => 'print'])); ?>"
+                       class="btn btn-secondary">
+                        Cetak
+                    </a>
                 </div>
 
                 <form method="GET" class="row g-3">
@@ -389,11 +435,9 @@ $listSiswa = $pdo->query("
                         </select>
                     </div>
 
-                    <!-- Tombol Filter, Reset, dan Cetak Disejajarkan di Bawah -->
                     <div class="col-md-4 d-flex align-items-end gap-2">
                         <button type="submit" class="btn btn-primary">Filter</button>
                         <a href="penempatan_siswa.php" class="btn btn-secondary">Reset</a>
-                        <a href="penempatan_siswa.php?<?= http_build_query(array_merge($_GET, ['action' => 'print'])); ?>" class="btn btn-secondary">Cetak</a>
                     </div>
                 </form>
             </div>
@@ -478,7 +522,7 @@ $(document).ready(function () {
         $('#tabelPenempatan').DataTable({
             language: {
                 search: "Cari data:",
-                lengthMenu: "Tampilkan 10 data",
+                lengthMenu: "Tampilkan _MENU_ data",
                 info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
                 infoEmpty: "Tidak ada data",
                 infoFiltered: "(difilter dari _MAX_ total data)",

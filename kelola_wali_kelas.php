@@ -2,24 +2,39 @@
 require_once 'koneksi.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
+
+$role_login = $_SESSION['role'] ?? '';
+$user_id_login = (int)($_SESSION['user_id'] ?? 0);
+$nama_user_login = $_SESSION['nama'] ?? $_SESSION['username'] ?? '';
 
 function e($v) {
     return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
-// SIMPAN / EDIT
+// SIMPAN / EDIT (Hanya Admin yang boleh melakukan aksi simpan/tambah)
 if (isset($_POST['simpan'])) {
+    if ($role_login !== 'admin') {
+        die("Akses ditolak. Anda tidak memiliki hak akses untuk mengubah data.");
+    }
+
     $id = (int)($_POST['id'] ?? 0);
     $tahun = (int)$_POST['tahun_ajaran_id'];
     $kelas = (int)$_POST['kelas_id'];
     $guru = (int)$_POST['guru_id'];
-    $mulai = $_POST['tanggal_mulai'] ?: null;
-    $selesai = $_POST['tanggal_selesai'] ?: null;
-    $status = isset($_POST['status_aktif']) ? 1 : 0;
+
+    if ($id) {
+        $mulai = $_POST['tanggal_mulai'] ?: null;
+        $selesai = $_POST['tanggal_selesai'] ?: null;
+        $status = isset($_POST['status_aktif']) ? 1 : 0;
+    } else {
+        $mulai = date('Y-m-d');
+        $selesai = null;
+        $status = 1;
+    }
 
     if ($selesai && $mulai && $selesai < $mulai) {
         die("Tanggal selesai tidak boleh sebelum tanggal mulai.");
@@ -46,8 +61,11 @@ if (isset($_POST['simpan'])) {
     exit();
 }
 
-// HAPUS
+// HAPUS (Hanya Admin)
 if (isset($_GET['hapus'])) {
+    if ($role_login !== 'admin') {
+        die("Akses ditolak.");
+    }
     $id = (int)$_GET['hapus'];
     $stmt = mysqli_prepare($koneksi, "DELETE FROM t_wali_kelas WHERE id=?");
     mysqli_stmt_bind_param($stmt, "i", $id);
@@ -73,7 +91,15 @@ if ($edit_id) {
 
 $guru = mysqli_query($koneksi, "SELECT id,nama FROM t_guru WHERE status_aktif=1 ORDER BY nama");
 $kelas = mysqli_query($koneksi, "SELECT id,nama FROM t_kelas WHERE status_aktif=1 ORDER BY nama");
-$tahun = mysqli_query($koneksi, "SELECT id,nama FROM t_tahun_ajaran ORDER BY nama DESC");
+$tahun = mysqli_query($koneksi, "SELECT id,nama FROM t_tahun_ajaran WHERE status_aktif=1 ORDER BY nama DESC");
+
+// FILTER QUERY BERDASARKAN SIAPA YANG LOGIN
+$where_user = "";
+if ($role_login !== 'admin') {
+    // Jika yang login wali kelas / guru, filter berdasarkan nama guru atau id guru yang cocok
+    // Mencocokkan nama user login dengan nama guru di tabel t_guru
+    $where_user = " WHERE g.nama LIKE '%$nama_user_login%' ";
+}
 
 $data = mysqli_query($koneksi, "
     SELECT wk.*, g.nama AS nama_guru, k.nama AS nama_kelas,
@@ -82,6 +108,7 @@ $data = mysqli_query($koneksi, "
     LEFT JOIN t_guru g ON wk.guru_id=g.id
     LEFT JOIN t_kelas k ON wk.kelas_id=k.id
     LEFT JOIN t_tahun_ajaran ta ON wk.tahun_ajaran_id=ta.id
+    $where_user
     ORDER BY wk.id DESC
 ");
 ?>
@@ -168,8 +195,8 @@ body {
     </h2>
     <hr>
 
-    <?php if ($aksi === 'tambah' || $edit_id): ?>
-        <!-- FORM TAMBAH / EDIT -->
+    <?php if (($aksi === 'tambah' || $edit_id) && $role_login === 'admin'): ?>
+        <!-- FORM TAMBAH / EDIT (Hanya Admin) -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
                 <?= $edit_id ? 'Edit Wali Kelas' : 'Tambah Wali Kelas'; ?>
@@ -227,23 +254,25 @@ body {
                             </select>
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Status</label><br>
-                            <input type="checkbox" name="status_aktif" value="1"
-                                <?= $edit['status_aktif']?'checked':'' ?>> Aktif
-                        </div>
+                        <?php if ($edit_id): ?>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Status</label><br>
+                                <input type="checkbox" name="status_aktif" value="1"
+                                    <?= $edit['status_aktif']?'checked':'' ?>> Aktif
+                            </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tanggal Mulai</label>
-                            <input type="date" name="tanggal_mulai" class="form-control"
-                                value="<?= e($edit['tanggal_mulai']) ?>">
-                        </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tanggal Mulai</label>
+                                <input type="date" name="tanggal_mulai" class="form-control"
+                                    value="<?= e($edit['tanggal_mulai']) ?>">
+                            </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Tanggal Selesai</label>
-                            <input type="date" name="tanggal_selesai" class="form-control"
-                                value="<?= e($edit['tanggal_selesai']) ?>">
-                        </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tanggal Selesai</label>
+                                <input type="date" name="tanggal_selesai" class="form-control"
+                                    value="<?= e($edit['tanggal_selesai']) ?>">
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <button type="submit" name="simpan" class="btn btn-primary">
@@ -256,12 +285,14 @@ body {
 
     <?php else: ?>
 
-        <!-- TOMBOL TAMBAH WALI KELAS -->
+        <!-- TOMBOL TAMBAH WALI KELAS (Hanya Muncul untuk Admin) -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5>Daftar Wali Kelas</h5>
-            <a href="kelola_wali_kelas.php?aksi=tambah" class="btn btn-primary">
-                + Tambah Wali Kelas
-            </a>
+            <?php if ($role_login === 'admin'): ?>
+                <a href="kelola_wali_kelas.php?aksi=tambah" class="btn btn-primary">
+                    + Tambah Wali Kelas
+                </a>
+            <?php endif; ?>
         </div>
 
         <!-- TABEL WALI KELAS -->
@@ -274,7 +305,10 @@ body {
                         <tr>
                             <th>No</th><th>Guru</th><th>Kelas</th>
                             <th>Tahun Ajaran</th><th>Tanggal Mulai</th>
-                            <th>Tanggal Selesai</th><th>Status</th><th>Aksi</th>
+                            <th>Tanggal Selesai</th><th>Status</th>
+                            <?php if ($role_login === 'admin'): ?>
+                                <th>Aksi</th>
+                            <?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -291,13 +325,15 @@ body {
                                     <?= $r['status_aktif']?'Aktif':'Tidak Aktif' ?>
                                 </span>
                             </td>
-                            <td class="text-center text-nowrap">
-                                <a href="?edit=<?= (int)$r['id'] ?>"
-                                   class="btn btn-warning btn-sm">Edit</a>
-                                <a href="?hapus=<?= (int)$r['id'] ?>"
-                                   class="btn btn-danger btn-sm"
-                                   onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</a>
-                            </td>
+                            <?php if ($role_login === 'admin'): ?>
+                                <td class="text-center text-nowrap">
+                                    <a href="?edit=<?= (int)$r['id'] ?>"
+                                       class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="?hapus=<?= (int)$r['id'] ?>"
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</a>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                         <?php endwhile; ?>
                     </tbody>
@@ -317,9 +353,6 @@ $(document).ready(function () {
     new DataTable('#tabelWaliKelas', {
         pageLength: 10,
         lengthMenu: [5, 10, 25, 50],
-        columnDefs: [
-            { orderable: false, searchable: false, targets: [0, 7] }
-        ],
         language: {
             search: "Cari:",
             lengthMenu: "Tampilkan 10 data",

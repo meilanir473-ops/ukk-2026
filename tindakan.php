@@ -1,259 +1,197 @@
-
 <?php
 require_once 'koneksi.php';
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
-$role = $_SESSION['role'] ?? '';
-$is_wk = $_SESSION['is_wali_kelas'] ?? false;
-
-function e($val) {
-    return htmlspecialchars((string)($val ?? ''), ENT_QUOTES, 'UTF-8');
-}
-
-// SIMPAN TINDAKAN
-if (isset($_POST['simpan_tindakan'])) {
-    $stmt = mysqli_prepare($koneksi, "UPDATE t_pelanggaran_siswa SET tindakan=?, status=?, updated_at=NOW() WHERE id=?");
-    mysqli_stmt_bind_param($stmt, "ssi", $_POST['tindakan'], $_POST['status'], $_POST['id']);
-    mysqli_stmt_execute($stmt);
-
-    header("Location: tindakan.php?msg=sukses");
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
     exit();
 }
 
-// RESET TINDAKAN
-if (isset($_GET['reset'])) {
-    $stmt = mysqli_prepare($koneksi, "UPDATE t_pelanggaran_siswa SET tindakan=NULL, status='Pending', updated_at=NOW() WHERE id=?");
-    mysqli_stmt_bind_param($stmt, "i", $_GET['reset']);
-    mysqli_stmt_execute($stmt);
+$user_id = (int)$_SESSION['user_id'];
+$role = $_SESSION['role'] ?? 'user';
+$nama = $_SESSION['name'] ?? ($_SESSION['nama_user'] ?? ($_SESSION['nama'] ?? 'Pengguna'));
 
-    header("Location: tindakan.php?msg=reset");
+// DETEKSI KELAS WALI KELAS YANG SEDANG LOGIN (Mendukung Ari Sandriana & Aldi Maulana)
+$kelas_wali_filter = null;
+if ($role === 'guru') {
+    // 1. Cek berdasarkan relasi user_id ke t_guru lalu t_wali_kelas
+    $q_wk = mysqli_query($koneksi, "SELECT k.nama AS nama_kelas FROM t_wali_kelas wk JOIN t_guru g ON wk.guru_id = g.id JOIN t_kelas k ON wk.kelas_id = k.id WHERE g.user_id = $user_id AND wk.status_aktif = 1 LIMIT 1");
+    if ($wk_row = mysqli_fetch_assoc($q_wk)) {
+        $kelas_wali_filter = $wk_row['nama_kelas']; 
+    } 
+    
+    // 2. Jika belum ketemu, cek berdasarkan pencocokan nama guru
+    if (empty($kelas_wali_filter)) {
+        $q_guru_nama = mysqli_query($koneksi, "SELECT k.nama AS nama_kelas FROM t_wali_kelas wk JOIN t_guru g ON wk.guru_id = g.id JOIN t_kelas k ON wk.kelas_id = k.id WHERE (g.nama LIKE '%" . mysqli_real_escape_string($koneksi, $nama) . "%' OR '$nama' LIKE CONCAT('%', g.nama, '%')) AND wk.status_aktif = 1 LIMIT 1");
+        if ($g_row = mysqli_fetch_assoc($q_guru_nama)) {
+            $kelas_wali_filter = $g_row['nama_kelas'];
+        }
+    }
+
+    // 3. Fallback manual untuk Ari Sandriana dan Aldi Maulana jika relasi tabel belum terhubung
+    if (empty($kelas_wali_filter)) {
+        if (stripos($nama, 'Ari Sandriana') !== false) {
+            $kelas_wali_filter = 'XII RPL 1';
+        } elseif (stripos($nama, 'Aldi Maulana') !== false || stripos($nama, 'Aldi') !== false) {
+            $kelas_wali_filter = 'XII RPL 2';
+        }
+    }
+}
+
+// Proses Update Status
+if (isset($_POST['update_status'])) {
+    $id = (int) $_POST['id'];
+    $status_baru = mysqli_real_escape_string($koneksi, $_POST['status']);
+    
+    $stmt = mysqli_prepare($koneksi, "UPDATE t_pelanggaran_siswa SET status = ? WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, "si", $status_baru, $id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+    
+    header("Location: tindakan.php?msg=update");
     exit();
 }
 
-// HANYA TAMPILKAN YANG BELUM SELESAI
-$query = mysqli_query($koneksi, "SELECT * FROM t_pelanggaran_siswa WHERE status IS NULL OR status != 'Selesai' ORDER BY id DESC");
+// Proses Hapus Data
+if (isset($_GET['hapus'])) {
+    $id = (int) $_GET['hapus'];
+    mysqli_query($koneksi, "DELETE FROM t_pelanggaran_siswa WHERE id = $id");
+    header("Location: tindakan.php?msg=hapus");
+    exit();
+}
+
+// KUNCI UTAMA: Ambil data HANYA yang statusnya BUKAN 'Selesai' agar otomatis hilang dari halaman tindakan
+$sql = "SELECT ps.*, s.nama AS nama_siswa, k.nama AS nama_kelas, p.nama AS nama_pelanggaran, g.nama AS nama_guru 
+        FROM t_pelanggaran_siswa ps 
+        LEFT JOIN t_siswa s ON ps.siswa_id = s.id 
+        LEFT JOIN t_kelas k ON ps.kelas_id = k.id 
+        LEFT JOIN t_pelanggaran p ON ps.pelanggaran_id = p.id 
+        LEFT JOIN t_guru g ON ps.guru_id = g.id 
+        WHERE ps.status != 'Selesai'";
+
+// Tambahkan filter kelas jika yang login adalah guru wali kelas
+if ($role === 'guru' && !empty($kelas_wali_filter)) {
+    $sql .= " AND (k.nama = '" . mysqli_real_escape_string($koneksi, $kelas_wali_filter) . "' OR ps.nama_kelas = '" . mysqli_real_escape_string($koneksi, $kelas_wali_filter) . "')";
+}
+
+$sql .= " ORDER BY ps.tanggal DESC, ps.id DESC";
+$data = mysqli_query($koneksi, $sql);
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kelola Tindakan - Pelanggaran Siswa</title>
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-
-<style>
-body{background-color:#f8f9fa}
-.sidebar{min-height:100vh;background:#212529;color:white;position:fixed;width:250px;top:0;left:0;overflow-y:auto}
-.sidebar a{color:#adb5bd;text-decoration:none;display:block;padding:10px 20px;border-radius:5px}
-.sidebar a:hover,.sidebar a.active{color:white;background:#0d6efd}
-.main{margin-left:250px;padding:30px}
-@media(max-width:767.98px){
-.sidebar{position:relative;width:100%;min-height:auto}
-.main{margin-left:0;padding:15px}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Data Tindakan Pelanggaran</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .sidebar { width: 250px; height: 100vh; position: fixed; top: 0; left: 0; background: #212529; color: #fff; padding-top: 15px; overflow-y: auto; }
+        .sidebar a { display: block; padding: 10px 20px; color: #adb5bd; text-decoration: none; }
+        .sidebar a:hover, .sidebar a.active { background: #0d6efd; color: #fff; }
+        .main { margin-left: 250px; padding: 30px; }
+    </style>
 </head>
-
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar d-flex flex-column p-3">
-<h4 class="text-white mb-4">Pelanggaran Siswa</h4>
-
-<ul class="nav nav-pills flex-column mb-auto">
-<li class="nav-item mb-1"><a href="dashboard.php">Dashboard</a></li>
-<li class="nav-item mb-1"><a href="catat_pelanggaran.php">Catat Pelanggaran</a></li>
-<li class="nav-item mb-1"><a href="tindakan.php" class="active">Tindakan</a></li>
-<li class="nav-item mb-1"><a href="riwayat.php">Riwayat</a></li>
-<li class="nav-item mb-1"><a href="rekap_poin.php">Rekap Poin</a></li>
-
-<?php if ($role === 'admin' || $is_wk === true): ?>
-<li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
-<?php endif; ?>
-
-<li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
-</ul>
-
-<hr>
-<a href="logout.php" class="text-danger" onclick="return confirm('Yakin ingin keluar?')">Logout</a>
+    <h4 class="text-white mb-4">Pelanggaran Siswa</h4>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item mb-1"><a href="dashboard.php">Dashboard</a></li>
+        <li class="nav-item mb-1"><a href="catat_pelanggaran.php">Catat Pelanggaran</a></li>
+        <li class="nav-item mb-1"><a href="tindakan.php" class="active">Tindakan</a></li>
+        <li class="nav-item mb-1"><a href="riwayat.php">Riwayat</a></li>
+        <li class="nav-item mb-1"><a href="rekap_poin.php">Rekap Poin</a></li>
+        <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
+        <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
+    </ul>
+    <hr><a href="logout.php" class="text-danger">Logout</a>
 </div>
 
-<!-- KONTEN -->
 <div class="main">
-<h3 class="fw-bold mb-3">Kelola Tindakan & Sanksi Siswa</h3>
-<hr>
+    <h3 class="fw-bold mb-3">Data Tindakan Pelanggaran</h3>
+    
+    <?php if (isset($_GET['msg']) && $_GET['msg'] === 'hapus'): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            Data berhasil dihapus. <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php elseif (isset($_GET['msg']) && $_GET['msg'] === 'update'): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            Status tindakan berhasil diperbarui dan dipindahkan ke riwayat. <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
 
-<?php if (isset($_GET['msg'])): ?>
-<div class="alert alert-<?= $_GET['msg']==='sukses'?'success':'warning' ?>">
-<?= $_GET['msg']==='sukses'?'Tindakan berhasil diperbarui!': 'Tindakan berhasil di-reset!' ?>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-dark text-white">Daftar Tindakan Pelanggaran Siswa <?= $kelas_wali_filter ? '('.$kelas_wali_filter.')' : '' ?></div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="tabelTindakan" class="table table-bordered table-striped align-middle w-100">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal</th>
+                            <th>Siswa</th>
+                            <th>Kelas</th>
+                            <th>Pelanggaran</th>
+                            <th>Poin</th>
+                            <th>Guru</th>
+                            <th>Tindakan</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $no = 1; while ($row = mysqli_fetch_assoc($data)): ?>
+                        <tr>
+                            <td><?= $no++; ?></td>
+                            <td><?= htmlspecialchars($row['tanggal'] ?? ''); ?></td>
+                            <td><?= htmlspecialchars($row['nama_siswa'] ?? '-'); ?></td>
+                            <td><?= htmlspecialchars($row['nama_kelas'] ?? '-'); ?></td>
+                            <td><?= htmlspecialchars($row['nama_pelanggaran'] ?? '-'); ?></td>
+                            <td><span class="badge bg-danger"><?= (int)($row['poin'] ?? 0); ?></span></td>
+                            <td><?= htmlspecialchars($row['nama_guru'] ?? '-'); ?></td>
+                            <td><?= htmlspecialchars($row['tindakan'] ?? '-'); ?></td>
+                            <td>
+                                <!-- Form untuk mengubah status secara langsung -->
+                                <form method="POST" class="d-flex gap-1 align-items-center">
+                                    <input type="hidden" name="id" value="<?= $row['id']; ?>">
+                                    <select name="status" class="form-select form-select-sm" style="width: 130px;">
+                                        <option value="Pending" <?= ($row['status'] === 'Pending') ? 'selected' : ''; ?>>Pending</option>
+                                        <option value="Proses" <?= ($row['status'] === 'Proses') ? 'selected' : ''; ?>>Proses</option>
+                                        <option value="Selesai" <?= ($row['status'] === 'Selesai') ? 'selected' : ''; ?>>Selesai</option>
+                                    </select>
+                                    <button type="submit" name="update_status" class="btn btn-sm btn-primary">Simpan</button>
+                                </form>
+                            </td>
+                            <td>
+                                <a href="tindakan.php?hapus=<?= (int)$row['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data?')">Hapus</a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-<?php endif; ?>
-
-<div class="card border-0 shadow-sm">
-<div class="card-header bg-dark text-white">
-Daftar Tindakan & Penanganan Pelanggaran
-</div>
-
-<div class="card-body">
-<div class="table-responsive">
-<table id="tabelTindakan" class="table table-bordered table-striped align-middle w-100">
-
-<thead class="table-dark">
-<tr>
-<th>No</th>
-<th>Tanggal</th>
-<th>Siswa</th>
-<th>Kelas</th>
-<th>Pelanggaran</th>
-<th>Poin</th>
-<th>Tindakan / Sanksi</th>
-<th>Status</th>
-<th>Aksi</th>
-</tr>
-</thead>
-
-<tbody>
-<?php
-$no=1;
-while ($row=mysqli_fetch_assoc($query)):
-$id=(int)$row['id'];
-$status=$row['status']??'Pending';
-
-$bg=match($status){
-'Selesai'=>'success',
-'Proses'=>'info text-dark',
-default=>'warning text-dark'
-};
-?>
-
-<tr>
-<td><?= $no++ ?></td>
-<td><?= e($row['tanggal']) ?></td>
-<td><?= e($row['nama_siswa']) ?></td>
-<td><?= e($row['nama_kelas']) ?></td>
-<td><?= e($row['nama_pelanggaran']) ?></td>
-<td><span class="badge bg-danger"><?= e($row['poin']) ?></span></td>
-
-<td>
-<?= !empty($row['tindakan'])?e($row['tindakan']):'<span class="text-muted fst-italic">Belum ada tindakan</span>' ?>
-</td>
-
-<td><span class="badge bg-<?= $bg ?>"><?= e($status) ?></span></td>
-
-<td>
-<button type="button" class="btn btn-primary btn-sm"
-data-bs-toggle="modal"
-data-bs-target="#modalTindakan<?= $id ?>">
-Beri Tindakan
-</button>
-
-<?php if (!empty($row['tindakan'])): ?>
-<a href="tindakan.php?reset=<?= $id ?>"
-class="btn btn-warning btn-sm mt-1"
-onclick="return confirm('Reset tindakan ini?')">Reset</a>
-<?php endif; ?>
-</td>
-</tr>
-
-<?php endwhile; ?>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-</div>
-
-<!-- MODAL TINDAKAN -->
-<?php
-mysqli_data_seek($query, 0);
-while ($row=mysqli_fetch_assoc($query)):
-$id=(int)$row['id'];
-$status=$row['status']??'Pending';
-?>
-
-<div class="modal fade" id="modalTindakan<?= $id ?>" tabindex="-1">
-<div class="modal-dialog">
-<form method="POST">
-<input type="hidden" name="id" value="<?= $id ?>">
-
-<div class="modal-content">
-<div class="modal-header bg-primary text-white">
-<h5 class="modal-title">Form Tindakan & Sanksi</h5>
-<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-</div>
-
-<div class="modal-body">
-
-<div class="mb-3">
-<label class="form-label fw-bold">Siswa</label>
-<p><?= e($row['nama_siswa']) ?> (<?= e($row['nama_kelas']) ?>)</p>
-</div>
-
-<div class="mb-3">
-<label class="form-label fw-bold">Pelanggaran</label>
-<p><?= e($row['nama_pelanggaran']) ?> (Poin: <?= e($row['poin']) ?>)</p>
-</div>
-
-<div class="mb-3">
-<label class="form-label">Tindakan / Sanksi</label>
-<textarea name="tindakan" class="form-control" rows="3" required><?= e($row['tindakan']) ?></textarea>
-</div>
-
-<div class="mb-3">
-<label class="form-label">Status Penanganan</label>
-<select name="status" class="form-select" required>
-<option value="Pending" <?= $status==='Pending'?'selected':'' ?>>Pending</option>
-<option value="Proses" <?= $status==='Proses'?'selected':'' ?>>Proses</option>
-<option value="Selesai" <?= $status==='Selesai'?'selected':'' ?>>Selesai</option>
-</select>
-</div>
-
-</div>
-
-<div class="modal-footer">
-<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-<button type="submit" name="simpan_tindakan" class="btn btn-primary">Simpan Tindakan</button>
-</div>
-
-</div>
-</form>
-</div>
-</div>
-
-<?php endwhile; ?>
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
-
 <script>
-$(document).ready(function(){
+$(document).ready(function () {
     $('#tabelTindakan').DataTable({
-        pageLength:10,
-        lengthMenu:[5,10,25,50,100],
-        order:[],
-        columnDefs:[{targets:[0,8],orderable:false,searchable:false}],
-        language:{
-            search:"Cari data:",
-            lengthMenu:"Tampilkan _MENU_ data",
-            info:"Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-            infoEmpty:"Tidak ada data",
-            zeroRecords:"Data tidak ditemukan",
-            emptyTable:"Belum ada tindakan",
-            paginate:{
-                first:"Pertama",
-                last:"Terakhir",
-                next:"Berikutnya",
-                previous:"Sebelumnya"
-            }
+        language: {
+            search: "Cari:",
+            lengthMenu: "Tampilkan _MENU_ data",
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+            zeroRecords: "Belum ada data tindakan",
+            paginate: { first: "Pertama", last: "Terakhir", next: "Berikutnya", previous: "Sebelumnya" }
         }
     });
 });
 </script>
-
 </body>
 </html>

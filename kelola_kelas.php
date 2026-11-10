@@ -205,7 +205,7 @@ $form = $edit ?: ['id' => '', 'nama' => '', 'tingkat' => '', 'jurusan' => '', 's
         $('#tabelKelas').DataTable({
             language: {
                 search: "Cari data:",
-                lengthMenu: "Tampilkan _MENU_ data",
+                lengthMenu: "Tampilkan 10 data",
                 info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data kelas ",
                 infoEmpty: "Menampilkan 0 sampai 0 dari 0 entri",
                 infoFiltered: "(disaring dari _MAX_ total entri)",

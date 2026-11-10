@@ -189,6 +189,9 @@ $total_kelas = $query_kelas ? (int) mysqli_fetch_assoc($query_kelas)['total'] : 
                 <li class="nav-item mb-1">
                     <a href="rekap_poin.php">Rekap Poin</a>
                 </li>
+                <li class="nav-item mb-1">
+                    <a href="Laporan.php">Laporan</a>
+                </li>
 
             <?php endif; ?>
 
