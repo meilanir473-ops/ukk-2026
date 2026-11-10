@@ -11,7 +11,7 @@ $user_id = (int)$_SESSION['user_id'];
 $role = $_SESSION['role'] ?? 'user';
 $nama = $_SESSION['name'] ?? ($_SESSION['nama_user'] ?? ($_SESSION['nama'] ?? 'Pengguna'));
 
-// DETEKSI KELAS WALI KELAS YANG SEDANG LOGIN
+// DETEKSI KELAS WALI KELAS (Hanya disimpan variabelnya jika nanti dibutuhkan, tapi tidak memfilter tabel)
 $kelas_wali_filter = null;
 if ($role === 'guru') {
     $q_wk = mysqli_query($koneksi, "SELECT k.nama AS nama_kelas FROM t_wali_kelas wk JOIN t_guru g ON wk.guru_id = g.id JOIN t_kelas k ON wk.kelas_id = k.id WHERE g.user_id = $user_id AND wk.status_aktif = 1 LIMIT 1");
@@ -19,6 +19,8 @@ if ($role === 'guru') {
         $kelas_wali_filter = $wk_row['nama_kelas'];
     } elseif (stripos($nama, 'Ari Sandriana') !== false) {
         $kelas_wali_filter = 'XII RPL 1';
+    } elseif (stripos($nama, 'Aldi Maulana') !== false || stripos($nama, 'Aldi') !== false) {
+        $kelas_wali_filter = 'XII RPL 2';
     }
 }
 
@@ -91,6 +93,9 @@ $aksi = $_GET['aksi'] ?? '';
     <meta charset="UTF-8"><title>Catat Pelanggaran</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- Tambahan CSS Select2 untuk fitur pencarian dropdown -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <style>
         body { background: #f8f9fa; }
         .sidebar { width: 250px; height: 100vh; position: fixed; top: 0; left: 0; background: #212529; color: #fff; padding-top: 15px; overflow-y: auto; }
@@ -140,19 +145,26 @@ $aksi = $_GET['aksi'] ?? '';
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Siswa</label>
-                            <select name="siswa_id" class="form-select" required>
+                            <select name="siswa_id" id="selectSiswa" class="form-select" required>
                                 <option value="">-- Pilih Siswa --</option>
                                 <?php 
-                                $q = mysqli_query($koneksi, "SELECT id, nis, nama FROM t_siswa ORDER BY nama ASC"); 
+                                $q = mysqli_query($koneksi, "
+                                    SELECT s.id, s.nis, s.nama, k.nama AS nama_kelas 
+                                    FROM t_siswa s 
+                                    LEFT JOIN t_kelas_siswa ks ON s.id = ks.siswa_id AND ks.status_aktif = 1 
+                                    LEFT JOIN t_kelas k ON ks.kelas_id = k.id 
+                                    ORDER BY s.nama ASC
+                                "); 
                                 while($r = mysqli_fetch_assoc($q)): 
+                                    $info_kelas = $r['nama_kelas'] ? ' (Kelas: ' . $r['nama_kelas'] . ')' : ' (Tanpa Kelas)';
                                 ?>
-                                    <option value="<?= $r['id'] ?>"><?= $r['nis'].' - '.$r['nama'] ?></option>
+                                    <option value="<?= $r['id'] ?>"><?= $r['nis'].' - '.$r['nama'].$info_kelas ?></option>
                                 <?php endwhile; ?>
                             </select>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Pelanggaran</label>
-                            <select name="pelanggaran_id" class="form-select" required>
+                            <select name="pelanggaran_id" id="selectPelanggaran" class="form-select" required>
                                 <option value="">-- Pilih Pelanggaran --</option>
                                 <?php $q = mysqli_query($koneksi, "SELECT id, kode, nama, poin FROM t_pelanggaran ORDER BY kode ASC"); while($r = mysqli_fetch_assoc($q)): ?>
                                     <option value="<?= $r['id'] ?>"><?= $r['kode'].' - '.$r['nama'].' ('.$r['poin'].' Poin)' ?></option>
@@ -170,7 +182,7 @@ $aksi = $_GET['aksi'] ?? '';
 
         <!-- TOMBOL TAMBAH & TABEL DATA PELANGGARAN -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5>Data Pelanggaran Siswa <?= $kelas_wali_filter ? '('.$kelas_wali_filter.')' : '' ?></h5>
+            <h5>Data Pelanggaran Siswa (Semua Kelas)</h5>
             <a href="catat_pelanggaran.php?aksi=tambah" class="btn btn-primary">
                 + Catat Pelanggaran
             </a>
@@ -196,24 +208,20 @@ $aksi = $_GET['aksi'] ?? '';
                         <tbody>
                             <?php 
                             $no=1; 
+                            // TANPA FILTER WHERE KELAS WALI KELAS, SEHINGGA SEMUA KELAS MUNCUL
                             $sql_pelanggaran = "SELECT ps.*, s.nama AS s_nama, k.nama AS k_nama, p.nama AS p_nama 
                                                 FROM t_pelanggaran_siswa ps 
                                                 LEFT JOIN t_siswa s ON ps.siswa_id = s.id 
                                                 LEFT JOIN t_kelas k ON ps.kelas_id = k.id 
-                                                LEFT JOIN t_pelanggaran p ON ps.pelanggaran_id = p.id";
-                            
-                            if ($role === 'guru' && !empty($kelas_wali_filter)) {
-                                $sql_pelanggaran .= " WHERE k.nama = '" . mysqli_real_escape_string($koneksi, $kelas_wali_filter) . "' OR ps.nama_kelas = '" . mysqli_real_escape_string($koneksi, $kelas_wali_filter) . "'";
-                            }
-                            
-                            $sql_pelanggaran .= " ORDER BY ps.id DESC";
+                                                LEFT JOIN t_pelanggaran p ON ps.pelanggaran_id = p.id
+                                                ORDER BY ps.id DESC";
                             
                             $data = mysqli_query($koneksi, $sql_pelanggaran);
                             while($row = mysqli_fetch_assoc($data)): 
                             ?>
                             <tr>
                                 <td><?= $no++; ?></td>
-                                <td><?= htmlspecialchars($row['tanggal']); ?></td>
+                                <?= '<td>' . htmlspecialchars($row['tanggal']) . '</td>' ?>
                                 <td><?= htmlspecialchars($row['s_nama'] ?? $row['nama_siswa'] ?? '-'); ?></td>
                                 <td><?= htmlspecialchars($row['k_nama'] ?? $row['nama_kelas'] ?? '-'); ?></td>
                                 <td><?= htmlspecialchars($row['p_nama'] ?? $row['nama_pelanggaran'] ?? '-'); ?></td>
@@ -235,6 +243,8 @@ $aksi = $_GET['aksi'] ?? '';
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
+<!-- Tambahan JS Select2 -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function () { 
     $('#tabelPelanggaran').DataTable({
@@ -246,6 +256,19 @@ $(document).ready(function () {
             paginate: { first: "Pertama", last: "Terakhir", next: "Berikutnya", previous: "Sebelumnya" }
         }
     }); 
+
+    // Mengaktifkan fitur pencarian/search pada select siswa dan pelanggaran
+    $('#selectSiswa').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Pilih Siswa --',
+        allowClear: true
+    });
+
+    $('#selectPelanggaran').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Pilih Pelanggaran --',
+        allowClear: true
+    });
 });
 </script>
 </body>

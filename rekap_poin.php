@@ -10,33 +10,16 @@ $role = $_SESSION['role'] ?? '';
 $is_wk = $_SESSION['is_wali_kelas'] ?? false;
 $nama = $_SESSION['name'] ?? ($_SESSION['nama_user'] ?? ($_SESSION['nama'] ?? 'Pengguna'));
 
-// DETEKSI KELAS WALI KELAS YANG SEDANG LOGIN
-$kelas_wali_filter = null;
-if ($role === 'guru') {
-    $q_wk = mysqli_query($conn, "SELECT k.nama AS nama_kelas FROM t_wali_kelas wk JOIN t_guru g ON wk.guru_id = g.id JOIN t_kelas k ON wk.kelas_id = k.id WHERE g.user_id = $user_id AND wk.status_aktif = 1 LIMIT 1");
-    if ($wk_row = mysqli_fetch_assoc($q_wk)) {
-        $kelas_wali_filter = $wk_row['nama_kelas']; // Contoh: 'XII RPL 1'
-    } elseif (stripos($nama, 'Ari Sandriana') !== false) {
-        $kelas_wali_filter = 'XII RPL 1';
-    }
-}
-
-// QUERY REKAP POIN DENGAN FILTER KELAS
+// QUERY REKAP POIN UNTUK SEMUA KELAS (Filter kelas dihapus)
 $sql = "SELECT s.id AS siswa_id, s.nis, s.nama AS nama_siswa, k.nama AS nama_kelas,
         COUNT(ps.id) AS jumlah_pelanggaran, COALESCE(SUM(ps.poin), 0) AS total_poin
         FROM t_siswa AS s
         LEFT JOIN t_kelas_siswa AS ks ON ks.siswa_id = s.id AND ks.status_aktif = 1
         LEFT JOIN t_kelas AS k ON k.id = ks.kelas_id
-        LEFT JOIN t_pelanggaran_siswa AS ps ON ps.siswa_id = s.id";
-
-// Tambahkan klausa WHERE jika akun yang login adalah wali kelas
-if ($role === 'guru' && !empty($kelas_wali_filter)) {
-    $sql .= " WHERE k.nama = '" . mysqli_real_escape_string($conn, $kelas_wali_filter) . "'";
-}
-
-$sql .= " GROUP BY s.id, s.nis, s.nama, k.nama
-          HAVING jumlah_pelanggaran > 0
-          ORDER BY total_poin DESC, s.nama ASC";
+        LEFT JOIN t_pelanggaran_siswa AS ps ON ps.siswa_id = s.id
+        GROUP BY s.id, s.nis, s.nama, k.nama
+        HAVING jumlah_pelanggaran > 0
+        ORDER BY total_poin DESC, s.nama ASC";
 
 $result = mysqli_query($conn, $sql);
 if (!$result) die("Gagal mengambil data: " . mysqli_error($conn));
@@ -87,7 +70,7 @@ function e($v) { return htmlspecialchars((string)($v ?? '-'), ENT_QUOTES, 'UTF-8
 <div class="main">
     <div class="mb-4">
         <h2 class="fw-bold mb-1">Rekap Poin Siswa</h2>
-        <p class="text-muted">Ringkasan poin dan jumlah pelanggaran setiap siswa <?= $kelas_wali_filter ? '('.$kelas_wali_filter.')' : '' ?>.</p>
+        <p class="text-muted">Ringkasan poin dan jumlah pelanggaran setiap siswa (Semua Kelas).</p>
     </div>
 
     <div class="table-container">

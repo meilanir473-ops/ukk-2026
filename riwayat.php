@@ -14,19 +14,8 @@ $user_id = (int)$_SESSION['user_id'];
 $role = $_SESSION['role'] ?? 'user';
 $nama = $_SESSION['name'] ?? ($_SESSION['nama_user'] ?? ($_SESSION['nama'] ?? 'Pengguna'));
 
-// DETEKSI KELAS WALI KELAS YANG SEDANG LOGIN
-$kelas_wali_filter = null;
-if ($role === 'guru') {
-    $q_wk = mysqli_query($koneksi, "SELECT k.nama AS nama_kelas FROM t_wali_kelas wk JOIN t_guru g ON wk.guru_id = g.id JOIN t_kelas k ON wk.kelas_id = k.id WHERE g.user_id = $user_id AND wk.status_aktif = 1 LIMIT 1");
-    if ($wk_row = mysqli_fetch_assoc($q_wk)) {
-        $kelas_wali_filter = $wk_row['nama_kelas']; // Contoh: 'XII RPL 1'
-    } elseif (stripos($nama, 'Ari Sandriana') !== false) {
-        $kelas_wali_filter = 'XII RPL 1';
-    }
-}
-
 // =========================
-// AMBIL DATA RIWAYAT DENGAN FILTER KELAS
+// AMBIL DATA RIWAYAT (Hanya yang statusnya 'Selesai' dari SEMUA KELAS)
 // =========================
 $sql = "
     SELECT
@@ -49,14 +38,9 @@ $sql = "
         ON ps.pelanggaran_id = p.id
     LEFT JOIN t_guru AS g
         ON ps.guru_id = g.id
+    WHERE ps.status = 'Selesai'
+    ORDER BY ps.tanggal DESC, ps.id DESC
 ";
-
-// Tambahkan WHERE jika akun yang login adalah wali kelas
-if ($role === 'guru' && !empty($kelas_wali_filter)) {
-    $sql .= " WHERE k.nama = '" . mysqli_real_escape_string($koneksi, $kelas_wali_filter) . "' OR ps.nama_kelas = '" . mysqli_real_escape_string($koneksi, $kelas_wali_filter) . "'";
-}
-
-$sql .= " ORDER BY ps.tanggal DESC, ps.id DESC";
 
 $data = mysqli_query($koneksi, $sql);
 
@@ -189,7 +173,7 @@ if (!$data) {
 
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-dark text-white">
-            Daftar Riwayat Pelanggaran Siswa <?= $kelas_wali_filter ? '('.$kelas_wali_filter.')' : '' ?>
+            Daftar Riwayat Pelanggaran Siswa (Semua Kelas)
         </div>
 
         <div class="card-body">
@@ -256,21 +240,8 @@ if (!$data) {
                                 </td>
 
                                 <td>
-                                    <?php
-                                    $status = $row['status'] ?? 'Pending';
-                                    $warna = 'secondary';
-
-                                    if ($status === 'Selesai') {
-                                        $warna = 'success';
-                                    } elseif ($status === 'Proses') {
-                                        $warna = 'primary';
-                                    } elseif ($status === 'Pending') {
-                                        $warna = 'warning text-dark';
-                                    }
-                                    ?>
-
-                                    <span class="badge bg-<?= $warna; ?>">
-                                        <?= htmlspecialchars($status); ?>
+                                    <span class="badge bg-success">
+                                        <?= htmlspecialchars($row['status']); ?>
                                     </span>
                                 </td>
                             </tr>
@@ -315,7 +286,7 @@ $(document).ready(function () {
             info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
             infoEmpty: 'Tidak ada data',
             zeroRecords: 'Data tidak ditemukan',
-            emptyTable: 'Belum ada riwayat pelanggaran',
+            emptyTable: 'Belum ada riwayat pelanggaran yang selesai',
             paginate: {
                 first: 'Pertama',
                 last: 'Terakhir',

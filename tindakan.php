@@ -11,33 +11,6 @@ $user_id = (int)$_SESSION['user_id'];
 $role = $_SESSION['role'] ?? 'user';
 $nama = $_SESSION['name'] ?? ($_SESSION['nama_user'] ?? ($_SESSION['nama'] ?? 'Pengguna'));
 
-// DETEKSI KELAS WALI KELAS YANG SEDANG LOGIN (Mendukung Ari Sandriana & Aldi Maulana)
-$kelas_wali_filter = null;
-if ($role === 'guru') {
-    // 1. Cek berdasarkan relasi user_id ke t_guru lalu t_wali_kelas
-    $q_wk = mysqli_query($koneksi, "SELECT k.nama AS nama_kelas FROM t_wali_kelas wk JOIN t_guru g ON wk.guru_id = g.id JOIN t_kelas k ON wk.kelas_id = k.id WHERE g.user_id = $user_id AND wk.status_aktif = 1 LIMIT 1");
-    if ($wk_row = mysqli_fetch_assoc($q_wk)) {
-        $kelas_wali_filter = $wk_row['nama_kelas']; 
-    } 
-    
-    // 2. Jika belum ketemu, cek berdasarkan pencocokan nama guru
-    if (empty($kelas_wali_filter)) {
-        $q_guru_nama = mysqli_query($koneksi, "SELECT k.nama AS nama_kelas FROM t_wali_kelas wk JOIN t_guru g ON wk.guru_id = g.id JOIN t_kelas k ON wk.kelas_id = k.id WHERE (g.nama LIKE '%" . mysqli_real_escape_string($koneksi, $nama) . "%' OR '$nama' LIKE CONCAT('%', g.nama, '%')) AND wk.status_aktif = 1 LIMIT 1");
-        if ($g_row = mysqli_fetch_assoc($q_guru_nama)) {
-            $kelas_wali_filter = $g_row['nama_kelas'];
-        }
-    }
-
-    // 3. Fallback manual untuk Ari Sandriana dan Aldi Maulana jika relasi tabel belum terhubung
-    if (empty($kelas_wali_filter)) {
-        if (stripos($nama, 'Ari Sandriana') !== false) {
-            $kelas_wali_filter = 'XII RPL 1';
-        } elseif (stripos($nama, 'Aldi Maulana') !== false || stripos($nama, 'Aldi') !== false) {
-            $kelas_wali_filter = 'XII RPL 2';
-        }
-    }
-}
-
 // Proses Update Status
 if (isset($_POST['update_status'])) {
     $id = (int) $_POST['id'];
@@ -60,21 +33,16 @@ if (isset($_GET['hapus'])) {
     exit();
 }
 
-// KUNCI UTAMA: Ambil data HANYA yang statusnya BUKAN 'Selesai' agar otomatis hilang dari halaman tindakan
+// KUNCI UTAMA: Ambil data HANYA yang statusnya BUKAN 'Selesai' dari SEMUA KELAS tanpa filter guru wali kelas
 $sql = "SELECT ps.*, s.nama AS nama_siswa, k.nama AS nama_kelas, p.nama AS nama_pelanggaran, g.nama AS nama_guru 
         FROM t_pelanggaran_siswa ps 
         LEFT JOIN t_siswa s ON ps.siswa_id = s.id 
         LEFT JOIN t_kelas k ON ps.kelas_id = k.id 
         LEFT JOIN t_pelanggaran p ON ps.pelanggaran_id = p.id 
         LEFT JOIN t_guru g ON ps.guru_id = g.id 
-        WHERE ps.status != 'Selesai'";
+        WHERE ps.status != 'Selesai'
+        ORDER BY ps.tanggal DESC, ps.id DESC";
 
-// Tambahkan filter kelas jika yang login adalah guru wali kelas
-if ($role === 'guru' && !empty($kelas_wali_filter)) {
-    $sql .= " AND (k.nama = '" . mysqli_real_escape_string($koneksi, $kelas_wali_filter) . "' OR ps.nama_kelas = '" . mysqli_real_escape_string($koneksi, $kelas_wali_filter) . "')";
-}
-
-$sql .= " ORDER BY ps.tanggal DESC, ps.id DESC";
 $data = mysqli_query($koneksi, $sql);
 ?>
 <!DOCTYPE html>
@@ -123,7 +91,7 @@ $data = mysqli_query($koneksi, $sql);
     <?php endif; ?>
 
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-dark text-white">Daftar Tindakan Pelanggaran Siswa <?= $kelas_wali_filter ? '('.$kelas_wali_filter.')' : '' ?></div>
+        <div class="card-header bg-dark text-white">Daftar Tindakan Pelanggaran Siswa (Semua Kelas)</div>
         <div class="card-body">
             <div class="table-responsive">
                 <table id="tabelTindakan" class="table table-bordered table-striped align-middle w-100">
@@ -153,12 +121,11 @@ $data = mysqli_query($koneksi, $sql);
                             <td><?= htmlspecialchars($row['nama_guru'] ?? '-'); ?></td>
                             <td><?= htmlspecialchars($row['tindakan'] ?? '-'); ?></td>
                             <td>
-                                <!-- Form untuk mengubah status secara langsung -->
+                                <!-- Form untuk mengubah status (Hanya Proses & Selesai) -->
                                 <form method="POST" class="d-flex gap-1 align-items-center">
                                     <input type="hidden" name="id" value="<?= $row['id']; ?>">
                                     <select name="status" class="form-select form-select-sm" style="width: 130px;">
-                                        <option value="Pending" <?= ($row['status'] === 'Pending') ? 'selected' : ''; ?>>Pending</option>
-                                        <option value="Proses" <?= ($row['status'] === 'Proses') ? 'selected' : ''; ?>>Proses</option>
+                                        <option value="Proses" <?= ($row['status'] === 'Proses' || $row['status'] === 'Pending') ? 'selected' : ''; ?>>Proses</option>
                                         <option value="Selesai" <?= ($row['status'] === 'Selesai') ? 'selected' : ''; ?>>Selesai</option>
                                     </select>
                                     <button type="submit" name="update_status" class="btn btn-sm btn-primary">Simpan</button>
