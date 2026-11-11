@@ -11,12 +11,25 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = (int)$_SESSION['user_id'];
-$role = $_SESSION['role'] ?? 'user';
-$nama = $_SESSION['name'] ?? ($_SESSION['nama_user'] ?? ($_SESSION['nama'] ?? 'Pengguna'));
+$role    = strtolower($_SESSION['role'] ?? 'user');
+
+// Ambil nama user yang sedang login dari berbagai kemungkinan key session
+$nama    = trim($_SESSION['name'] ?? ($_SESSION['nama_user'] ?? ($_SESSION['nama'] ?? '')));
 
 // =========================
-// AMBIL DATA RIWAYAT (Hanya yang statusnya 'Selesai' dari SEMUA KELAS)
+// AMBIL DATA RIWAYAT SESUAI ROLE & NAMA GURU
 // =========================
+$where_clause = "WHERE ps.status = 'Selesai'";
+
+// Jika BUKAN admin, filter berdasarkan nama guru yang sedang login
+if ($role !== 'admin' && !empty($nama)) {
+    // Escape string untuk keamanan database dari SQL Injection
+    $nama_escaped = mysqli_real_escape_string($koneksi, $nama);
+    
+    // Kita gunakan LIKE agar cocok walau ada gelar (misal: "Aldi Maulana" mencocokkan "Aldi Maulana, S.Pd")
+    $where_clause .= " AND (g.nama LIKE '%$nama_escaped%' OR ps.guru_id = '$user_id')";
+}
+
 $sql = "
     SELECT
         ps.id,
@@ -38,7 +51,7 @@ $sql = "
         ON ps.pelanggaran_id = p.id
     LEFT JOIN t_guru AS g
         ON ps.guru_id = g.id
-    WHERE ps.status = 'Selesai'
+    $where_clause
     ORDER BY ps.tanggal DESC, ps.id DESC
 ";
 
@@ -236,7 +249,9 @@ if (!$data) {
                                 </td>
 
                                 <td>
-                                    <?= htmlspecialchars($row['keterangan'] ?? '-'); ?>
+                                    <?= !empty(trim($row['keterangan'] ?? ''))
+                                        ? htmlspecialchars($row['keterangan'])
+                                        : '-'; ?>
                                 </td>
 
                                 <td>

@@ -171,6 +171,9 @@ $total_kelas = $query_kelas ? (int) mysqli_fetch_assoc($query_kelas)['total'] : 
                 <li class="nav-item mb-1">
                     <a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a>
                 </li>
+                <li class="nav-item mb-1">
+                    <a href="laporan.php">Laporan</a>
+                </li>
 
             <?php elseif ($role === 'guru'): ?>
 
@@ -188,18 +191,15 @@ $total_kelas = $query_kelas ? (int) mysqli_fetch_assoc($query_kelas)['total'] : 
 
                 <li class="nav-item mb-1">
                     <a href="rekap_poin.php">Rekap Poin</a>
+                </li><li class="nav-item mb-1">
+                    <a href="laporan.php">Laporan</a>
                 </li>
-                <li class="nav-item mb-1">
-                    <a href="Laporan.php">Laporan</a>
-                </li>
-
+              
             <?php endif; ?>
 
             <!-- Menu Laporan: Hanya tampil jika user adalah Admin atau Wali Kelas -->
             <?php if ($role === 'admin' || $is_wk === true): ?>
-                <li class="nav-item mb-1">
-                    <a href="laporan.php">Laporan</a>
-                </li>
+                
             <?php endif; ?>
 
             <li class="nav-item mb-1">

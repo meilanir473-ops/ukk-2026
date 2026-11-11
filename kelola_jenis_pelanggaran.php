@@ -35,12 +35,24 @@ if (isset($_POST['simpan'])) {
     exit();
 }
 
-// 2. PROSES HAPUS
+// 2. PROSES HAPUS (DILENGKAPI CEK FOREIGN KEY AGAR TIDAK FATAL ERROR)
 if (isset($_GET['hapus'])) {
     $id = (int)$_GET['hapus'];
-    mysqli_query($koneksi, "DELETE FROM t_pelanggaran WHERE id=$id");
-    header("Location: kelola_jenis_pelanggaran.php");
-    exit();
+
+    // Cek apakah jenis pelanggaran masih digunakan di tabel t_pelanggaran_siswa
+    $cek_pakai = mysqli_query($koneksi, "SELECT COUNT(*) AS total FROM t_pelanggaran_siswa WHERE pelanggaran_id = $id");
+    $data_cek = mysqli_fetch_assoc($cek_pakai);
+
+    if ($data_cek['total'] > 0) {
+        // Jika masih dipakai, alihkan dengan pesan gagal
+        header("Location: kelola_jenis_pelanggaran.php?msg=gagal_pakai");
+        exit();
+    } else {
+        // Jika aman, hapus data
+        mysqli_query($koneksi, "DELETE FROM t_pelanggaran WHERE id=$id");
+        header("Location: kelola_jenis_pelanggaran.php?msg=sukses_hapus");
+        exit();
+    }
 }
 
 // AMBIL DATA UNTUK EDIT ATAU KONDISI TAMBAH
@@ -156,6 +168,21 @@ if (!$data) {
         <?= $edit ? 'Edit Jenis Pelanggaran' : ($aksi === 'tambah' ? 'Tambah Jenis Pelanggaran' : 'Kelola Jenis Pelanggaran'); ?>
     </h2>
     <hr>
+
+    <!-- NOTIFIKASI PESAN ALERT -->
+    <?php if (isset($_GET['msg'])): ?>
+        <?php if ($_GET['msg'] === 'gagal_pakai'): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Gagal Menghapus!</strong> Jenis pelanggaran ini masih digunakan dalam data riwayat pelanggaran siswa.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php elseif ($_GET['msg'] === 'sukses_hapus'): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                Jenis pelanggaran berhasil dihapus.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
 
     <?php if ($aksi === 'tambah' || $edit): ?>
         <!-- FORM TAMBAH / EDIT -->
@@ -289,7 +316,7 @@ $(document).ready(function () {
         ],
         language: {
             search: "Cari data:",
-            lengthMenu: "Tampilkan 10 data",
+            lengthMenu: "Tampilkan _MENU_ data",
             info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
             infoEmpty: "Tidak ada data",
             infoFiltered: "(difilter dari _MAX_ data)",

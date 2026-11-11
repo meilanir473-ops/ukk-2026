@@ -29,6 +29,8 @@ if (isset($_POST['simpan'])) {
     $s_id = (int)$_POST['siswa_id'];
     $p_id = (int)$_POST['pelanggaran_id'];
     $tgl  = $_POST['tanggal'];
+    // Menangkap input keterangan dari form
+    $keterangan = trim($_POST['keterangan'] ?? '');
 
     $ta_query = mysqli_query($koneksi, "SELECT id FROM t_tahun_ajaran WHERE status_aktif = 1 LIMIT 1");
     $ta = ($ta_row = mysqli_fetch_assoc($ta_query)) ? $ta_row['id'] : 1;
@@ -67,21 +69,13 @@ if (isset($_POST['simpan'])) {
         $tindakan = 'Dikembalikan kepada Orang Tua';
     }
 
-    $keterangan = 'Pencatatan pelanggaran otomatis';
-    $status     = 'Pending';
+    $status = 'Pending';
 
     $stmt = mysqli_prepare($koneksi, "INSERT INTO t_pelanggaran_siswa (tahun_ajaran_id, siswa_id, nama_siswa, kelas_id, nama_kelas, pelanggaran_id, nama_pelanggaran, pelanggaran_kategori_id, guru_id, nama_guru, tanggal, keterangan, poin, tindakan, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
     
     mysqli_stmt_bind_param($stmt, "iisisisiisssiss", $ta, $s_id, $s_nama, $k_id, $k_nama, $p_id, $p_nama, $p_kat, $g_id, $g_nama, $tgl, $keterangan, $p_poin, $tindakan, $status);
     mysqli_stmt_execute($stmt);
     header("Location: catat_pelanggaran.php?msg=sukses"); 
-    exit();
-}
-
-// PROSES HAPUS
-if (isset($_GET['hapus'])) {
-    mysqli_query($koneksi, "DELETE FROM t_pelanggaran_siswa WHERE id = " . (int)$_GET['hapus']);
-    header("Location: catat_pelanggaran.php?msg=hapus"); 
     exit();
 }
 
@@ -93,7 +87,6 @@ $aksi = $_GET['aksi'] ?? '';
     <meta charset="UTF-8"><title>Catat Pelanggaran</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/2.3.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <!-- Tambahan CSS Select2 untuk fitur pencarian dropdown -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <style>
@@ -126,10 +119,6 @@ $aksi = $_GET['aksi'] ?? '';
         <div class="alert alert-success alert-dismissible fade show">
             Pelanggaran siswa berhasil dicatat. <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-    <?php elseif (isset($_GET['msg']) && $_GET['msg'] === 'hapus'): ?>
-        <div class="alert alert-success alert-dismissible fade show">
-            Data catatan pelanggaran berhasil dihapus. <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
     <?php endif; ?>
 
     <?php if ($aksi === 'tambah'): ?>
@@ -146,7 +135,7 @@ $aksi = $_GET['aksi'] ?? '';
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Siswa</label>
                             <select name="siswa_id" id="selectSiswa" class="form-select" required>
-                                <option value="">-- Pilih Siswa --</option>
+                                <option value="">Pilih Siswa </option>
                                 <?php 
                                 $q = mysqli_query($koneksi, "
                                     SELECT s.id, s.nis, s.nama, k.nama AS nama_kelas 
@@ -165,13 +154,20 @@ $aksi = $_GET['aksi'] ?? '';
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Pelanggaran</label>
                             <select name="pelanggaran_id" id="selectPelanggaran" class="form-select" required>
-                                <option value="">-- Pilih Pelanggaran --</option>
+                                <option value=""> Pilih Pelanggaran </option>
                                 <?php $q = mysqli_query($koneksi, "SELECT id, kode, nama, poin FROM t_pelanggaran ORDER BY kode ASC"); while($r = mysqli_fetch_assoc($q)): ?>
                                     <option value="<?= $r['id'] ?>"><?= $r['kode'].' - '.$r['nama'].' ('.$r['poin'].' Poin)' ?></option>
                                 <?php endwhile; ?>
                             </select>
                         </div>
                     </div>
+
+                    <!-- INPUT KETERANGAN TAMBAHAN -->
+                    <div class="mb-3">
+                        <label class="form-label">Keterangan / Catatan Tambahan (Opsional)</label>
+                        <textarea name="keterangan" class="form-control" rows="2" placeholder="Contoh: baca quran sampai khatam, dll"></textarea>
+                    </div>
+
                     <button type="submit" name="simpan" class="btn btn-primary">Simpan</button>
                     <a href="catat_pelanggaran.php" class="btn btn-secondary">Batal</a>
                 </form>
@@ -202,13 +198,11 @@ $aksi = $_GET['aksi'] ?? '';
                                 <th>Pelanggaran</th>
                                 <th>Poin</th>
                                 <th>Guru Pencatat</th>
-                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php 
                             $no=1; 
-                            // TANPA FILTER WHERE KELAS WALI KELAS, SEHINGGA SEMUA KELAS MUNCUL
                             $sql_pelanggaran = "SELECT ps.*, s.nama AS s_nama, k.nama AS k_nama, p.nama AS p_nama 
                                                 FROM t_pelanggaran_siswa ps 
                                                 LEFT JOIN t_siswa s ON ps.siswa_id = s.id 
@@ -227,7 +221,6 @@ $aksi = $_GET['aksi'] ?? '';
                                 <td><?= htmlspecialchars($row['p_nama'] ?? $row['nama_pelanggaran'] ?? '-'); ?></td>
                                 <td><span class="badge bg-danger"><?= (int)$row['poin']; ?></span></td>
                                 <td><?= htmlspecialchars($row['nama_guru'] ?? '-'); ?></td>
-                                <td><a href="catat_pelanggaran.php?hapus=<?= (int)$row['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus data?')">Hapus</a></td>
                             </tr>
                             <?php endwhile; ?>
                         </tbody>
@@ -243,7 +236,6 @@ $aksi = $_GET['aksi'] ?? '';
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.bootstrap5.min.js"></script>
-<!-- Tambahan JS Select2 -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function () { 
@@ -257,16 +249,15 @@ $(document).ready(function () {
         }
     }); 
 
-    // Mengaktifkan fitur pencarian/search pada select siswa dan pelanggaran
     $('#selectSiswa').select2({
         theme: 'bootstrap-5',
-        placeholder: '-- Pilih Siswa --',
+        placeholder: ' Pilih Siswa ',
         allowClear: true
     });
 
     $('#selectPelanggaran').select2({
         theme: 'bootstrap-5',
-        placeholder: '-- Pilih Pelanggaran --',
+        placeholder: ' Pilih Pelanggaran ',
         allowClear: true
     });
 });

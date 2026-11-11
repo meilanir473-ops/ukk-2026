@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 10, 2026 at 12:27 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Waktu pembuatan: 11 Nov 2026 pada 11.27
+-- Versi server: 10.4.32-MariaDB
+-- Versi PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,7 +24,7 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_guru`
+-- Struktur dari tabel `t_guru`
 --
 
 CREATE TABLE `t_guru` (
@@ -39,7 +39,7 @@ CREATE TABLE `t_guru` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_guru`
+-- Dumping data untuk tabel `t_guru`
 --
 
 INSERT INTO `t_guru` (`id`, `nip`, `nama`, `email`, `status_aktif`, `user_id`, `created_at`, `updated_at`) VALUES
@@ -102,7 +102,7 @@ INSERT INTO `t_guru` (`id`, `nip`, `nama`, `email`, `status_aktif`, `user_id`, `
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_kelas`
+-- Struktur dari tabel `t_kelas`
 --
 
 CREATE TABLE `t_kelas` (
@@ -116,7 +116,7 @@ CREATE TABLE `t_kelas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_kelas`
+-- Dumping data untuk tabel `t_kelas`
 --
 
 INSERT INTO `t_kelas` (`id`, `nama`, `tingkat`, `jurusan`, `status_aktif`, `created_at`, `updated_at`) VALUES
@@ -162,7 +162,7 @@ INSERT INTO `t_kelas` (`id`, `nama`, `tingkat`, `jurusan`, `status_aktif`, `crea
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_kelas_siswa`
+-- Struktur dari tabel `t_kelas_siswa`
 --
 
 CREATE TABLE `t_kelas_siswa` (
@@ -178,7 +178,7 @@ CREATE TABLE `t_kelas_siswa` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_kelas_siswa`
+-- Dumping data untuk tabel `t_kelas_siswa`
 --
 
 INSERT INTO `t_kelas_siswa` (`id`, `siswa_id`, `tahun_ajaran_id`, `kelas_id`, `tanggal_mulai`, `tanggal_selesai`, `status_aktif`, `created_at`, `updated_at`) VALUES
@@ -236,7 +236,7 @@ INSERT INTO `t_kelas_siswa` (`id`, `siswa_id`, `tahun_ajaran_id`, `kelas_id`, `t
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_pelanggaran`
+-- Struktur dari tabel `t_pelanggaran`
 --
 
 CREATE TABLE `t_pelanggaran` (
@@ -252,7 +252,7 @@ CREATE TABLE `t_pelanggaran` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_pelanggaran`
+-- Dumping data untuk tabel `t_pelanggaran`
 --
 
 INSERT INTO `t_pelanggaran` (`id`, `pelanggaran_kategori_id`, `kode`, `nama`, `poin`, `deskripsi`, `status_aktif`, `created_at`, `updated_at`) VALUES
@@ -264,18 +264,19 @@ INSERT INTO `t_pelanggaran` (`id`, `pelanggaran_kategori_id`, `kode`, `nama`, `p
 (6, 2, 'PLG-006', 'Rambut panjang / dicat (khusus siswa laki-laki)', 15, 'Memelihara rambut panjang, tidak rapi, atau mewarnai rambut', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
 (7, 3, 'PLG-007', 'Membolos / cabut jam pelajaran', 25, 'Keluar lingkungan sekolah atau bersembunyi saat jam pelajaran berlangsung', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
 (8, 3, 'PLG-008', 'Alpha (Tidak masuk tanpa keterangan)', 20, 'Tidak hadir ke sekolah tanpa surat izin atau keterangan yang sah', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
-(9, 4, 'PLG-009', 'Membuat kegaduhan / keributan di kelas', 20, 'Membuat suasana kelas menjadi gaduh dan mengganggu proses KBM', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
+(9, 4, 'PLG-009', 'Membuat kegaduhan / keributan di kelas', 15, 'Membuat suasana kelas menjadi gaduh dan mengganggu proses KBM', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
 (10, 4, 'PLG-010', 'Tidak sopan / berkata kasar kepada guru / staf', 30, 'Menggunakan bahasa atau gestur yang tidak sopan kepada warga sekolah', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
 (11, 4, 'PLG-011', 'Mencoret-coret fasilitas sekolah (dinding/meja/kursi)', 25, 'Merusak estetika fasilitas kelas atau sekolah dengan coretan', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
 (12, 5, 'PLG-012', 'Membawa dan/atau merokok di lingkungan sekolah', 50, 'Kedapatan merokok atau membawa rokok di area sekolah', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
 (13, 5, 'PLG-013', 'Membawa HP / Gadget saat pelajaran tanpa izin', 25, 'Menggunakan handphone di kelas tanpa instruksi atau izin guru pengampu', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
 (14, 5, 'PLG-014', 'Terlibat perkelahian / tawuran antar pelajar', 100, 'Melakukan kontak fisik kekerasan atau tawuran di dalam maupun luar sekolah', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
-(15, 5, 'PLG-015', 'Membawa senjata tajam atau benda berbahaya', 100, 'Membawa senjata tajam, senjata api mainan berbahaya, atau alat pemukul', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26');
+(15, 5, 'PLG-015', 'Membawa senjata tajam atau benda berbahaya', 50, 'Membawa senjata tajam, senjata api mainan berbahaya, atau alat pemukul', 1, '2026-11-04 00:54:26', '2026-11-04 00:54:26'),
+(53, 5, 'PLG-016', 'Membawa senjata tajam atau benda berbahaya', 30, 'membawa minuman keras', 1, NULL, NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_pelanggaran_kategori`
+-- Struktur dari tabel `t_pelanggaran_kategori`
 --
 
 CREATE TABLE `t_pelanggaran_kategori` (
@@ -288,7 +289,7 @@ CREATE TABLE `t_pelanggaran_kategori` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_pelanggaran_kategori`
+-- Dumping data untuk tabel `t_pelanggaran_kategori`
 --
 
 INSERT INTO `t_pelanggaran_kategori` (`id`, `nama`, `deskripsi`, `status_aktif`, `created_at`, `updated_at`) VALUES
@@ -301,7 +302,7 @@ INSERT INTO `t_pelanggaran_kategori` (`id`, `nama`, `deskripsi`, `status_aktif`,
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_pelanggaran_siswa`
+-- Struktur dari tabel `t_pelanggaran_siswa`
 --
 
 CREATE TABLE `t_pelanggaran_siswa` (
@@ -326,24 +327,45 @@ CREATE TABLE `t_pelanggaran_siswa` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_pelanggaran_siswa`
+-- Dumping data untuk tabel `t_pelanggaran_siswa`
 --
 
 INSERT INTO `t_pelanggaran_siswa` (`id`, `tahun_ajaran_id`, `siswa_id`, `nama_siswa`, `kelas_id`, `nama_kelas`, `pelanggaran_id`, `nama_pelanggaran`, `pelanggaran_kategori_id`, `guru_id`, `nama_guru`, `tanggal`, `keterangan`, `poin`, `tindakan`, `status`, `created_at`, `updated_at`) VALUES
 (1, 1, 1, 'JUNITA PUTRI NUR RAHMAN', 33, 'XII RPL 2', 1, 'Terlambat hadir di sekolah', 1, 32, 'Aldi Maulana, S.Pd', '2026-11-04', 'Terlambat masuk gerbang sekolah', 10, 'Peringatan lisan', 'Selesai', '2026-11-04 02:46:52', '2026-11-04 02:46:52'),
-(2, 1, 55, 'ALFIN RAHADIAN', 32, 'XII RPL 1', 6, 'Rambut panjang / dicat (khusus siswa laki-laki)', 2, 1, 'Wawan Kurniawan, S.Pd.I', '2026-11-10', 'Pencatatan pelanggaran otomatis', 15, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-10 10:06:13', NULL),
-(3, 1, 3, 'ANISA AMIRULLA', 33, 'XII RPL 2', 11, 'Mencoret-coret fasilitas sekolah (dinding/meja/kursi)', 4, 1, 'Wawan Kurniawan, S.Pd.I', '2026-11-10', 'Pencatatan pelanggaran otomatis', 25, 'Skorsing & Pembinaan Khusus', 'Selesai', '2026-11-10 10:11:13', NULL),
-(4, 1, 69, 'MUHAMMAD ZIDANE MAULIDAN', 32, 'XII RPL 1', 3, 'Tidak mengikuti upacara bendera', 1, 32, 'Aldi Maulana, S.Pd', '2026-11-10', 'Pencatatan pelanggaran otomatis', 20, 'Panggilan Orang Tua / SP 1', 'Pending', '2026-11-10 10:24:03', NULL),
-(5, 1, 78, 'TAZKIA ZAHRA', 32, 'XII RPL 1', 8, 'Alpha (Tidak masuk tanpa keterangan)', 3, 32, 'Aldi Maulana, S.Pd', '2026-11-10', 'Pencatatan pelanggaran otomatis', 20, 'Panggilan Orang Tua / SP 1', 'Pending', '2026-11-10 10:24:54', NULL),
-(6, 1, 56, 'ALISA RAMADHANI', 32, 'XII RPL 1', 4, 'Atribut seragam tidak lengkap', 2, 32, 'Aldi Maulana, S.Pd', '2026-11-10', 'Pencatatan pelanggaran otomatis', 10, 'Peringatan Lisan', 'Pending', '2026-11-10 10:31:46', NULL),
-(7, 1, 2, 'AGNIA ROSYA NOERILLAH', 33, 'XII RPL 2', 14, 'Terlibat perkelahian / tawuran antar pelajar', 5, 32, 'Aldi Maulana, S.Pd', '2026-11-10', 'Pencatatan pelanggaran otomatis', 100, 'Dikembalikan kepada Orang Tua', 'Pending', '2026-11-10 10:32:37', NULL),
-(8, 1, 61, 'ERLANGGA SAPUTRA HIDAYAT', 32, 'XII RPL 1', 4, 'Atribut seragam tidak lengkap', 2, 32, 'Aldi Maulana, S.Pd', '2026-11-10', 'Pencatatan pelanggaran otomatis', 10, 'Peringatan Lisan', 'Selesai', '2026-11-10 10:44:44', NULL),
-(9, 1, 2, 'AGNIA ROSYA NOERILLAH', 33, 'XII RPL 2', 2, 'Keluar kelas tanpa izin saat jam pelajaran', 1, 28, 'Ari Sandriana, S.Kom', '2026-11-10', 'Pencatatan pelanggaran otomatis', 15, 'Panggilan Orang Tua / SP 1', 'Pending', '2026-11-10 11:24:22', NULL);
+(2, 1, 55, 'ALFIN RAHADIAN', 32, 'XII RPL 1', 6, 'Rambut panjang / dicat (khusus siswa laki-laki)', 2, 1, 'Wawan Kurniawan, S.Pd.I', '2026-11-10', '', 15, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-10 10:06:13', NULL),
+(3, 1, 3, 'ANISA AMIRULLA', 33, 'XII RPL 2', 11, 'Mencoret-coret fasilitas sekolah (dinding/meja/kursi)', 4, 1, 'Wawan Kurniawan, S.Pd.I', '2026-11-10', '', 25, 'Skorsing & Pembinaan Khusus', 'Selesai', '2026-11-10 10:11:13', NULL),
+(4, 1, 69, 'MUHAMMAD ZIDANE MAULIDAN', 32, 'XII RPL 1', 3, 'Tidak mengikuti upacara bendera', 1, 32, 'Aldi Maulana, S.Pd', '2026-11-10', '', 20, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-10 10:24:03', NULL),
+(5, 1, 78, 'TAZKIA ZAHRA', 32, 'XII RPL 1', 8, 'Alpha (Tidak masuk tanpa keterangan)', 3, 32, 'Aldi Maulana, S.Pd', '2026-11-10', '', 20, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-10 10:24:54', NULL),
+(6, 1, 56, 'ALISA RAMADHANI', 32, 'XII RPL 1', 4, 'Atribut seragam tidak lengkap', 2, 32, 'Aldi Maulana, S.Pd', '2026-11-10', '', 10, 'Peringatan Lisan', 'Selesai', '2026-11-10 10:31:46', NULL),
+(7, 1, 2, 'AGNIA ROSYA NOERILLAH', 33, 'XII RPL 2', 14, 'Terlibat perkelahian / tawuran antar pelajar', 5, 32, 'Aldi Maulana, S.Pd', '2026-11-10', '', 100, 'Dikembalikan kepada Orang Tua', 'Selesai', '2026-11-10 10:32:37', NULL),
+(8, 1, 61, 'ERLANGGA SAPUTRA HIDAYAT', 32, 'XII RPL 1', 4, 'Atribut seragam tidak lengkap', 2, 32, 'Aldi Maulana, S.Pd', '2026-11-10', '', 10, 'Peringatan Lisan', 'Selesai', '2026-11-10 10:44:44', NULL),
+(9, 1, 2, 'AGNIA ROSYA NOERILLAH', 33, 'XII RPL 2', 2, 'Keluar kelas tanpa izin saat jam pelajaran', 1, 28, 'Ari Sandriana, S.Kom', '2026-11-10', '', 15, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-10 11:24:22', NULL),
+(10, 1, 64, 'JULIANDA DHARMA PANGESTU', 32, 'XII RPL 1', 13, 'Membawa HP / Gadget saat pelajaran tanpa izin', 5, 22, 'Ai Wahidah, S.Ag', '2026-11-11', '', 25, 'Skorsing & Pembinaan Khusus', 'Proses', '2026-11-11 00:17:17', NULL),
+(11, 1, 78, 'TAZKIA ZAHRA', 32, 'XII RPL 1', 1, 'Terlambat hadir di sekolah', 1, 10, 'H. Encep Maemun, S.T., M.Pd', '2026-11-11', '', 10, 'Peringatan Lisan', 'Selesai', '2026-11-11 00:19:35', NULL),
+(12, 1, 57, 'ALMA AURA LIVIA', 32, 'XII RPL 1', 2, 'Keluar kelas tanpa izin saat jam pelajaran', 1, 10, 'H. Encep Maemun, S.T., M.Pd', '2026-11-11', '', 15, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-11 00:23:01', NULL),
+(14, 1, 26, 'TONI ANTONIO', 33, 'XII RPL 2', 13, 'Membawa HP / Gadget saat pelajaran tanpa izin', 5, 10, 'H. Encep Maemun, S.T., M.Pd', '2026-11-11', '', 25, 'Skorsing & Pembinaan Khusus', 'Selesai', '2026-11-11 00:24:01', NULL),
+(15, 1, 66, 'MOZA DINA NABILLAH', 32, 'XII RPL 1', 4, 'Atribut seragam tidak lengkap', 2, 10, 'H. Encep Maemun, S.T., M.Pd', '2026-11-11', '', 10, 'Peringatan Lisan', 'Selesai', '2026-11-11 00:24:17', NULL),
+(20, 1, 1, 'ADITTIA NUR LANTIP', 33, 'XII RPL 2', 3, 'Tidak mengikuti upacara bendera', 1, 28, 'Ari Sandriana, S.Kom', '2026-11-11', '', 20, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-11 02:13:01', NULL),
+(21, 1, 56, 'ALISA RAMADHANI', 32, 'XII RPL 1', 3, 'Tidak mengikuti upacara bendera', 1, 28, 'Ari Sandriana, S.Kom', '2026-11-11', '', 20, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-11 02:13:35', NULL),
+(22, 1, 56, 'ALISA RAMADHANI', 32, 'XII RPL 1', 5, 'Seragam tidak sesuai ketentuan / jadwal', 2, 28, 'Ari Sandriana, S.Kom', '2026-11-11', '', 15, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-11 02:25:40', NULL),
+(23, 1, 55, 'ALFIN RAHADIAN', 32, 'XII RPL 1', 5, 'Seragam tidak sesuai ketentuan / jadwal', 2, 32, 'Aldi Maulana, S.Pd', '2026-11-11', '', 15, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-11 02:46:15', NULL),
+(24, 1, 25, 'SURAIYA SALSABILA AZZAHRA', 33, 'XII RPL 2', 10, 'Tidak sopan / berkata kasar kepada guru / staf', 4, 32, 'Aldi Maulana, S.Pd', '2026-11-11', '', 30, 'baca quran sampa hatam', 'Selesai', '2026-11-11 05:40:53', NULL),
+(25, 1, 56, 'ALISA RAMADHANI', 32, 'XII RPL 1', 4, 'Atribut seragam tidak lengkap', 2, 32, 'Aldi Maulana, S.Pd', '2026-11-11', '', 10, 'Peringatan Lisan', 'Pending', '2026-11-11 06:02:20', NULL),
+(26, 1, 21, 'SENDI MARDIAN', 33, 'XII RPL 2', 5, 'Seragam tidak sesuai ketentuan / jadwal', 2, 32, 'Aldi Maulana, S.Pd', '2026-11-11', '', 15, 'kasih arahan', 'Selesai', '2026-11-11 06:09:17', NULL),
+(27, 1, 56, 'ALISA RAMADHANI', 32, 'XII RPL 1', 9, 'Membuat kegaduhan / keributan di kelas', 4, 32, 'Aldi Maulana, S.Pd', '2026-11-11', 'panggil ke bk', 20, 'Panggilan Orang Tua / SP 1', 'Selesai', '2026-11-11 06:18:02', NULL),
+(28, 1, 59, 'AZMIL AMIRA', 32, 'XII RPL 1', 2, 'Keluar kelas tanpa izin saat jam pelajaran', 1, 32, 'Aldi Maulana, S.Pd', '2026-11-11', '', 15, 'Panggilan Orang Tua / SP 1', 'Pending', '2026-11-11 06:21:54', NULL),
+(29, 1, 16, 'RANI MEILANI', 33, 'XII RPL 2', 1, 'Terlambat hadir di sekolah', 1, 32, 'Aldi Maulana, S.Pd', '2026-11-11', 'Baca Surah', 10, 'Peringatan Lisan', 'Selesai', '2026-11-11 06:50:30', NULL),
+(30, 1, 55, 'ALFIN RAHADIAN', 32, 'XII RPL 1', 3, 'Tidak mengikuti upacara bendera', 1, 10, 'H. Encep Maemun, S.T., M.Pd', '2026-11-11', 'Keliling Lapangan', 20, 'Panggilan Orang Tua / SP 1', 'Pending', '2026-11-11 07:51:31', NULL),
+(31, 1, 14, 'PUSPITA DEWI', 33, 'XII RPL 2', 53, 'Membawa senjata tajam atau benda berbahaya', 5, 32, 'Aldi Maulana, S.Pd', '2026-11-11', 'Keluarkan', 30, 'Skorsing & Pembinaan Khusus', 'Selesai', '2026-11-11 08:19:55', NULL),
+(32, 1, 16, 'RANI MEILANI', 33, 'XII RPL 2', 3, 'Tidak mengikuti upacara bendera', 1, 10, 'H. Encep Maemun, S.T., M.Pd', '2026-11-11', '', 20, 'dsasdas', 'Selesai', '2026-11-11 09:19:41', NULL),
+(33, 1, 16, 'RANI MEILANI', 33, 'XII RPL 2', 4, 'Atribut seragam tidak lengkap', 2, 10, 'H. Encep Maemun, S.T., M.Pd', '2026-11-11', '', 10, 'Peringatan Lisan', 'Selesai', '2026-11-11 09:19:57', NULL),
+(34, 1, 2, 'AGNIA ROSYA NOERILLAH', 33, 'XII RPL 2', 3, 'Tidak mengikuti upacara bendera', 1, 32, 'Aldi Maulana, S.Pd', '2026-11-11', 'tgdfsgdsfdsf', 20, 'Panggilan Orang Tua / SP 1', 'Pending', '2026-11-11 10:17:01', NULL),
+(35, 1, 2, 'AGNIA ROSYA NOERILLAH', 33, 'XII RPL 2', 1, 'Terlambat hadir di sekolah', 1, 32, 'Aldi Maulana, S.Pd', '2026-11-11', 'AEWrdaesrerer', 10, 'Peringatan Lisan', 'Selesai', '2026-11-11 10:17:19', NULL);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_siswa`
+-- Struktur dari tabel `t_siswa`
 --
 
 CREATE TABLE `t_siswa` (
@@ -360,7 +382,7 @@ CREATE TABLE `t_siswa` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_siswa`
+-- Dumping data untuk tabel `t_siswa`
 --
 
 INSERT INTO `t_siswa` (`id`, `nis`, `nisn`, `nama`, `jenis_kelamin`, `tanggal_lahir`, `alamat`, `status_aktif`, `created_at`, `updated_at`) VALUES
@@ -418,7 +440,7 @@ INSERT INTO `t_siswa` (`id`, `nis`, `nisn`, `nama`, `jenis_kelamin`, `tanggal_la
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_tahun_ajaran`
+-- Struktur dari tabel `t_tahun_ajaran`
 --
 
 CREATE TABLE `t_tahun_ajaran` (
@@ -432,7 +454,7 @@ CREATE TABLE `t_tahun_ajaran` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_tahun_ajaran`
+-- Dumping data untuk tabel `t_tahun_ajaran`
 --
 
 INSERT INTO `t_tahun_ajaran` (`id`, `nama`, `tanggal_mulai`, `tanggal_selesai`, `status_aktif`, `created_at`, `updated_at`) VALUES
@@ -442,7 +464,7 @@ INSERT INTO `t_tahun_ajaran` (`id`, `nama`, `tanggal_mulai`, `tanggal_selesai`, 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_users`
+-- Struktur dari tabel `t_users`
 --
 
 CREATE TABLE `t_users` (
@@ -458,7 +480,7 @@ CREATE TABLE `t_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_users`
+-- Dumping data untuk tabel `t_users`
 --
 
 INSERT INTO `t_users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `role`, `created_at`, `updated_at`) VALUES
@@ -522,7 +544,7 @@ INSERT INTO `t_users` (`id`, `name`, `email`, `email_verified_at`, `password`, `
 -- --------------------------------------------------------
 
 --
--- Table structure for table `t_wali_kelas`
+-- Struktur dari tabel `t_wali_kelas`
 --
 
 CREATE TABLE `t_wali_kelas` (
@@ -538,7 +560,7 @@ CREATE TABLE `t_wali_kelas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `t_wali_kelas`
+-- Dumping data untuk tabel `t_wali_kelas`
 --
 
 INSERT INTO `t_wali_kelas` (`id`, `tahun_ajaran_id`, `kelas_id`, `guru_id`, `tanggal_mulai`, `tanggal_selesai`, `status_aktif`, `created_at`, `updated_at`) VALUES
@@ -550,20 +572,20 @@ INSERT INTO `t_wali_kelas` (`id`, `tahun_ajaran_id`, `kelas_id`, `guru_id`, `tan
 --
 
 --
--- Indexes for table `t_guru`
+-- Indeks untuk tabel `t_guru`
 --
 ALTER TABLE `t_guru`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_guru_user` (`user_id`);
 
 --
--- Indexes for table `t_kelas`
+-- Indeks untuk tabel `t_kelas`
 --
 ALTER TABLE `t_kelas`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `t_kelas_siswa`
+-- Indeks untuk tabel `t_kelas_siswa`
 --
 ALTER TABLE `t_kelas_siswa`
   ADD PRIMARY KEY (`id`),
@@ -572,20 +594,20 @@ ALTER TABLE `t_kelas_siswa`
   ADD KEY `fk_ks_kelas` (`kelas_id`);
 
 --
--- Indexes for table `t_pelanggaran`
+-- Indeks untuk tabel `t_pelanggaran`
 --
 ALTER TABLE `t_pelanggaran`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_pelanggaran_kategori` (`pelanggaran_kategori_id`);
 
 --
--- Indexes for table `t_pelanggaran_kategori`
+-- Indeks untuk tabel `t_pelanggaran_kategori`
 --
 ALTER TABLE `t_pelanggaran_kategori`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `t_pelanggaran_siswa`
+-- Indeks untuk tabel `t_pelanggaran_siswa`
 --
 ALTER TABLE `t_pelanggaran_siswa`
   ADD PRIMARY KEY (`id`),
@@ -597,25 +619,25 @@ ALTER TABLE `t_pelanggaran_siswa`
   ADD KEY `fk_ps_guru` (`guru_id`);
 
 --
--- Indexes for table `t_siswa`
+-- Indeks untuk tabel `t_siswa`
 --
 ALTER TABLE `t_siswa`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `t_tahun_ajaran`
+-- Indeks untuk tabel `t_tahun_ajaran`
 --
 ALTER TABLE `t_tahun_ajaran`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `t_users`
+-- Indeks untuk tabel `t_users`
 --
 ALTER TABLE `t_users`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `t_wali_kelas`
+-- Indeks untuk tabel `t_wali_kelas`
 --
 ALTER TABLE `t_wali_kelas`
   ADD PRIMARY KEY (`id`),
@@ -624,81 +646,81 @@ ALTER TABLE `t_wali_kelas`
   ADD KEY `fk_wk_guru` (`guru_id`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT untuk tabel yang dibuang
 --
 
 --
--- AUTO_INCREMENT for table `t_guru`
+-- AUTO_INCREMENT untuk tabel `t_guru`
 --
 ALTER TABLE `t_guru`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
--- AUTO_INCREMENT for table `t_kelas`
+-- AUTO_INCREMENT untuk tabel `t_kelas`
 --
 ALTER TABLE `t_kelas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
--- AUTO_INCREMENT for table `t_kelas_siswa`
+-- AUTO_INCREMENT untuk tabel `t_kelas_siswa`
 --
 ALTER TABLE `t_kelas_siswa`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
--- AUTO_INCREMENT for table `t_pelanggaran`
+-- AUTO_INCREMENT untuk tabel `t_pelanggaran`
 --
 ALTER TABLE `t_pelanggaran`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
--- AUTO_INCREMENT for table `t_pelanggaran_kategori`
+-- AUTO_INCREMENT untuk tabel `t_pelanggaran_kategori`
 --
 ALTER TABLE `t_pelanggaran_kategori`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
--- AUTO_INCREMENT for table `t_pelanggaran_siswa`
+-- AUTO_INCREMENT untuk tabel `t_pelanggaran_siswa`
 --
 ALTER TABLE `t_pelanggaran_siswa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
--- AUTO_INCREMENT for table `t_siswa`
+-- AUTO_INCREMENT untuk tabel `t_siswa`
 --
 ALTER TABLE `t_siswa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
--- AUTO_INCREMENT for table `t_tahun_ajaran`
+-- AUTO_INCREMENT untuk tabel `t_tahun_ajaran`
 --
 ALTER TABLE `t_tahun_ajaran`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `t_users`
+-- AUTO_INCREMENT untuk tabel `t_users`
 --
 ALTER TABLE `t_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=58;
 
 --
--- AUTO_INCREMENT for table `t_wali_kelas`
+-- AUTO_INCREMENT untuk tabel `t_wali_kelas`
 --
 ALTER TABLE `t_wali_kelas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- Constraints for dumped tables
+-- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
 --
 
 --
--- Constraints for table `t_guru`
+-- Ketidakleluasaan untuk tabel `t_guru`
 --
 ALTER TABLE `t_guru`
   ADD CONSTRAINT `fk_guru_user` FOREIGN KEY (`user_id`) REFERENCES `t_users` (`id`) ON DELETE SET NULL;
 
 --
--- Constraints for table `t_kelas_siswa`
+-- Ketidakleluasaan untuk tabel `t_kelas_siswa`
 --
 ALTER TABLE `t_kelas_siswa`
   ADD CONSTRAINT `fk_ks_kelas` FOREIGN KEY (`kelas_id`) REFERENCES `t_kelas` (`id`),
@@ -706,13 +728,13 @@ ALTER TABLE `t_kelas_siswa`
   ADD CONSTRAINT `fk_ks_tahun_ajaran` FOREIGN KEY (`tahun_ajaran_id`) REFERENCES `t_tahun_ajaran` (`id`);
 
 --
--- Constraints for table `t_pelanggaran`
+-- Ketidakleluasaan untuk tabel `t_pelanggaran`
 --
 ALTER TABLE `t_pelanggaran`
   ADD CONSTRAINT `fk_pelanggaran_kategori` FOREIGN KEY (`pelanggaran_kategori_id`) REFERENCES `t_pelanggaran_kategori` (`id`);
 
 --
--- Constraints for table `t_pelanggaran_siswa`
+-- Ketidakleluasaan untuk tabel `t_pelanggaran_siswa`
 --
 ALTER TABLE `t_pelanggaran_siswa`
   ADD CONSTRAINT `fk_ps_guru` FOREIGN KEY (`guru_id`) REFERENCES `t_guru` (`id`),
@@ -723,7 +745,7 @@ ALTER TABLE `t_pelanggaran_siswa`
   ADD CONSTRAINT `fk_ps_tahun_ajaran` FOREIGN KEY (`tahun_ajaran_id`) REFERENCES `t_tahun_ajaran` (`id`);
 
 --
--- Constraints for table `t_wali_kelas`
+-- Ketidakleluasaan untuk tabel `t_wali_kelas`
 --
 ALTER TABLE `t_wali_kelas`
   ADD CONSTRAINT `fk_wk_guru` FOREIGN KEY (`guru_id`) REFERENCES `t_guru` (`id`),

@@ -1,3 +1,4 @@
+
 <?php
 require_once 'koneksi.php';
 
@@ -27,6 +28,7 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>About Me</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -87,6 +89,7 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
 
 <!-- SIDEBAR -->
 <div class="sidebar d-flex flex-column p-3">
+
     <h4 class="text-white mb-4">Pelanggaran Siswa</h4>
 
     <ul class="nav nav-pills flex-column mb-auto">
@@ -153,13 +156,24 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
 
         <?php endif; ?>
 
-        <!-- Menu Laporan: Hanya muncul jika Admin atau Wali Kelas -->
-        <?php if ($role === 'admin' || $is_wk === true): ?>
+        <!-- MENU LAPORAN -->
+        <?php if (
+            $role === 'admin' ||
+            $role === 'guru' ||
+            $is_wk == true ||
+            $is_wk == 1 ||
+            $is_wk == '1'
+        ): ?>
+
             <li class="nav-item mb-1">
-                <a href="laporan.php" class="<?= basename($_SERVER['PHP_SELF']) == 'laporan.php' ? 'active' : ''; ?>">Laporan</a>
+                <a href="laporan.php">
+                    Laporan
+                </a>
             </li>
+
         <?php endif; ?>
 
+        <!-- ABOUT ME -->
         <li class="nav-item mb-1">
             <a href="about_me.php" class="active">About Me</a>
         </li>
@@ -167,14 +181,23 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
     </ul>
 
     <hr>
-    <a href="logout.php" class="text-danger" onclick="return confirm('Yakin ingin keluar?')">Logout</a>
+
+    <a href="logout.php" class="text-danger"
+       onclick="return confirm('Yakin ingin keluar?')">
+        Logout
+    </a>
+
 </div>
 
 <!-- KONTEN UTAMA -->
 <div class="main-content">
+
     <h2 class="mb-3">About Me</h2>
+
     <hr>
+
     <div class="card shadow-sm profile-card">
+
         <div class="card-body text-center p-4">
 
             <img src="Foto.jpeg"
@@ -193,6 +216,7 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
             <hr>
 
             <h3 class="text-start">Tentang Aplikasi</h3>
+
             <hr>
 
             <p class="text-start">
@@ -204,6 +228,7 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
             <hr>
 
             <h4 class="text-start">Identitas</h4>
+
             <hr>
 
             <div class="text-start">
@@ -214,6 +239,7 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
             </div>
 
         </div>
+
     </div>
 
 </div>
