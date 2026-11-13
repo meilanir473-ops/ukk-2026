@@ -68,9 +68,10 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
         }
 
         .profile-card {
-            max-width: 800px;
-            margin: 10px 0;
+            max-width: 700px;
+            margin: 20px 0;
         }
+        
 
         @media(max-width: 768px) {
             .sidebar {
@@ -200,12 +201,10 @@ $nama_user = $_SESSION['nama_user'] ?? 'Pengguna';
 
         <div class="card-body text-center p-4">
 
-            <img src="Foto.jpeg"
-                 alt="Foto Profil"
-                 class="rounded-circle mb-3"
-                 width="150"
-                 height="150"
-                 style="object-fit: cover;">
+            <img src="fto.rani.jpeg"
+                alt="Foto Profil"
+                class="rounded mb-3 shadow-sm"
+                style="width: 180px; height: auto;">
 
             <h3>Rani Meilani</h3>
 
