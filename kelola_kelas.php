@@ -108,7 +108,7 @@ $form = $edit ?: ['id' => '', 'nama' => '', 'tingkat' => '', 'jurusan' => '', 's
                             <label class="form-label">Tingkat</label>
                             <select name="tingkat" class="form-select" required>
                                 <option value="" disabled <?= empty($form['tingkat']) ? 'selected' : ''; ?>>Pilih Tingkat</option>
-                                <?php foreach(['X', 'XI', 'XII', 'XIII'] as $t): ?>
+                                <?php foreach(['X', 'XI', 'XII', ] as $t): ?>
                                     <option value="<?= $t ?>" <?= ($form['tingkat'] == $t) ? 'selected' : ''; ?>><?= $t ?></option>
                                 <?php endforeach; ?>
                             </select>
@@ -123,8 +123,8 @@ $form = $edit ?: ['id' => '', 'nama' => '', 'tingkat' => '', 'jurusan' => '', 's
                                     'RPL' => 'RPL (Rekayasa Perangkat Lunak)',
                                     'TKJ' => 'TKJ (Teknik Komputer dan Jaringan)',
                                     'TBSM' => 'TBSM (Teknik Bisnis Sepeda Motor)',
-                                    'OTKP' => 'OTKP (Otomatisasi Tata Kelola Perkantoran)',
-                                    'AKL' => 'AKL (Akuntansi dan Keuangan Lembaga)'
+                                    'BD' => 'BD (Bisinis Digital)',
+                                    'TKR' => 'TKR (Teknik Kendaraan Ringan)'
                                 ];
                                 foreach($jurusans as $k => $v): ?>
                                     <option value="<?= $k ?>" <?= ($form['jurusan'] == $k) ? 'selected' : ''; ?>><?= $v ?></option>
