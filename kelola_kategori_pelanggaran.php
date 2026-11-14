@@ -255,7 +255,8 @@ $(document).ready(function () {
             zeroRecords: "Data tidak ditemukan",
             emptyTable: "Belum ada kategori pelanggaran",
         
-    });
+        }
+                                ;
 
     // Jika sedang dalam mode edit, otomatis buka modalnya
     <?php if ($isEdit): ?>

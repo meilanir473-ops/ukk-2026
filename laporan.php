@@ -67,7 +67,7 @@ if ($action === 'cetak_semua') {
         <button onclick='window.print()' style='padding: 6px 12px; cursor: pointer; margin-left: 5px;'>🖨️ Cetak Ulang</button>
     </div>
     <style>@media print { .no-print { display: none; } }</style>
-    <h3>Laporan Pelanggaran Siswa</h3><table border='1' width='100%' style='border-collapse:collapse; font-family:Arial; font-size:12px;'><tr style='background:#eee;'><th>No</th><th>Tanggal</th><th>Siswa</th><th>Kelas</th><th>Pelanggaran</th><th>Poin</th><th>Guru</th></tr>";
+    <h3>Laporan Pelanggaran Siswa</h3><table border='1' width='100%' height=100% ' style='border-collapse:collapse; font-family:Arial; font-size:12px;'><tr style='background:#eee;'><th>No</th><th>Tanggal</th><th>Siswa</th><th>Kelas</th><th>Pelanggaran</th><th>Poin</th><th>Guru</th></tr>";
     $no = 1; 
     while($r = mysqli_fetch_assoc($q)){ 
         echo "<tr><td>".$no."</td><td>{$r['tanggal']}</td><td>{$r['nama_siswa']}</td><td>{$r['nama_kelas']}</td><td>{$r['nama_pelanggaran']}</td><td>{$r['poin']}</td><td>{$r['nama_guru']}</td></tr>"; 
@@ -98,7 +98,6 @@ if ($action === 'cetak_satuan' && isset($_GET['id'])) {
     <tr><td><strong>Poin</strong></td><td>: <span style='color:red;'>{$d['poin']} Poin</span></td></tr>
     <tr><td><strong>Pencatat</strong></td><td>: {$d['nama_guru']}</td></tr>
     </table><br><br>
-    <div style='float:right; text-align:center;'>Mengetahui,<br><br><br><b>( _________________ )</b></div>
     </div></body>"; 
     exit();
 }

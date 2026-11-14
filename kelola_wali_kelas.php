@@ -136,8 +136,8 @@ body { background:#f8f9fa; }
         <li class="nav-item mb-1"><a href="kelola_tahun_ajaran.php">Kelola Tahun Ajaran</a></li>
         <li class="nav-item mb-1"><a href="penempatan_siswa.php">Penempatan Siswa</a></li>
         <li class="nav-item mb-1"><a href="kelola_wali_kelas.php" class="active">Kelola Wali Kelas</a></li>
-        <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kategori Pelanggaran</a></li>
-        <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Jenis Pelanggaran</a></li>
+        <li class="nav-item mb-1"><a href="kelola_kategori_pelanggaran.php">Kelola Kategori Pelanggaran</a></li>
+        <li class="nav-item mb-1"><a href="kelola_jenis_pelanggaran.php">Kelola Jenis Pelanggaran</a></li>
         <li class="nav-item mb-1"><a href="laporan.php">Laporan</a></li>
         <li class="nav-item mb-1"><a href="about_me.php">About Me</a></li>
     </ul>
